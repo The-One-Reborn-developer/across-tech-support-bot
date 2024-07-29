@@ -11,11 +11,11 @@ async def main() -> None:
     load_dotenv(find_dotenv())
 
     bot = Bot(token=os.getenv('TOKEN'))
-    dp = Dispatcher(bot)
+    dp = Dispatcher()
 
     dp.include_router(router)
 
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == '__main__':
