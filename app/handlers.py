@@ -6,7 +6,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 
-from app.keyboards import get_main_keyboard, back_to_main_keyboard
+from app.keyboards import (main_keyboard,
+                           back_to_main_keyboard,
+                           region_keyboard)
 
 router = Router()
 
@@ -28,14 +30,16 @@ async def start(message: Message) -> None:
               f"Я - бот технической поддержки Акросс.\n" \
               f"Пожалуйста, выберите пункт из меню ниже 🔽"
               
-    await message.answer(content, reply_markup=get_main_keyboard())
+    await message.answer(content, reply_markup=main_keyboard())
 
 
 @router.callback_query(F.data == "main")
-async def main(callback: CallbackQuery) -> None:
+async def main(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.reset_state(with_data=False)
+
     content = f"Пожалуйста, выберите пункт из меню ниже 🔽"
               
-    await callback.message.edit_text(content, reply_markup=get_main_keyboard())
+    await callback.message.edit_text(content, reply_markup=main_keyboard())
 
 
 @router.callback_query(F.data == "contacts")
@@ -47,10 +51,19 @@ async def contacts(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "make_request")
-async def make_request(callback: CallbackQuery) -> None:
-    content = "Данная функция пока недоступна 🙁"
+async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.set_state(Request.region)
 
-    await callback.message.edit_text(content, reply_markup=back_to_main_keyboard())
+    content = "⚠️ ВНИМАНИЕ ⚠️\nЗаявки на доработку функционала, разработку " \
+              "нового функционала, заявки на изменение состава пользователей " \
+              "и их настроек доступа, а также на подключение нового " \
+              "оборудования можно передать <b>ТОЛЬКО</b> письмом на почту " \
+              "support@across.ru\n\n" \
+              "Пожалуйста, укажите Ваш регион 🌍🌎🌏 из списка внизу 🔽"
+
+    await callback.message.edit_text(content,
+                                     parse_mode="HTML",
+                                     reply_markup=region_keyboard())
 
 
 @router.callback_query(F.data == "request_status")

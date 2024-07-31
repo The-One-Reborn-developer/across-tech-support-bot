@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-def get_main_keyboard() -> InlineKeyboardMarkup:
+def main_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -41,5 +41,18 @@ def back_to_main_keyboard() -> InlineKeyboardMarkup:
                     callback_data='main'
                 )
             ]
+        ]
+    )
+
+
+def region_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Белгородская область 🇷🇺',
+                    callback_data='Belgorod'
+                )
+            ]            
         ]
     )
