@@ -9,6 +9,7 @@ from aiogram import F
 from app.keyboards import (main_keyboard,
                            back_to_main_keyboard,
                            region_keyboard,
+                           medical_organization_keyboard,
                            issue_type_keyboard)
 
 router = Router()
@@ -67,24 +68,29 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
                                      reply_markup=region_keyboard())
     
 
-@router.callback_query(Request.region, F.data)
-async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
-    await state.update_data({"region": callback.data})
+#@router.callback_query(Request.region) # TODO
+#async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
+@router.message(Request.region)
+async def region(message: Message, state: FSMContext) -> None:
+    await state.update_data({"region": message.text})
+    #await state.update_data({"region": callback.data})
     await state.set_state(Request.organization)
 
-    content = "Напишите название Вашей медицинской организации 🏥"
+    content = "Напишите название Вашей медицинской организации 🏥"
+    #content = "Выберите Вашу медицинскую организацию 🏥"
 
-    await callback.message.edit_text(content, reply_markup=back_to_main_keyboard())
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+    #await callback.message.answer(content, reply_markup=medical_organization_keyboard())
 
 
-@router.message(Request.organization)
-async def organization(message: Message, state: FSMContext) -> None:
-    await state.update_data({"organization": message.text})
+@router.callback_query(Request.organization)
+async def medical_organization(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data({"organization": callback.data})
     await state.set_state(Request.lab)
 
     content = "Напишите название Вашей лаборатории 🩺"
 
-    await message.answer(content, reply_markup=back_to_main_keyboard())
+    await callback.message.answer(content, reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.lab)
@@ -135,6 +141,34 @@ async def phone(message: Message, state: FSMContext) -> None:
     content = "Выберите тип заявки 📝"
 
     await message.answer(content, reply_markup=issue_type_keyboard())
+
+
+@router.callback_query(Request.request_type)
+async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data({"request_type": callback.data})
+    await state.set_state(Request.request_description)
+
+    if callback.data == "critical":
+        content = "Опишите проблему 📝 или предоставьте фото или скриншоты 📷"
+    elif callback.data == "no_exchange":
+        content = "Опишите проблему 📝 и предоставьте ШК ЛИС или ИДМИС"
+    elif callback.data == "no_connection":
+        content = "Напишите наименование анализатора, ШК ЛИС и предоставьте " \
+                  "описание проблемы 📝"
+    elif callback.data == "other":
+        content = "Подробно опишите Вашу проблему 📝"
+        
+    await callback.message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.request_description)
+async def request_description(message: Message, state: FSMContext) -> None:
+    await state.update_data({"request_description": message.text})
+
+    content = "Ваша заявка принята ✅\n" \
+              f"{await state.get_data()}"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "request_status")
