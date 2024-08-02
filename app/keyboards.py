@@ -1,4 +1,7 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import (InlineKeyboardButton,
+                           InlineKeyboardMarkup,
+                           ReplyKeyboardMarkup,
+                           KeyboardButton)
 
 
 def main_keyboard() -> InlineKeyboardMarkup:
@@ -37,7 +40,7 @@ def back_to_main_keyboard() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='Назад ◀️',
+                    text='Назад в главное меню ◀️',
                     callback_data='main'
                 )
             ]
@@ -53,6 +56,49 @@ def region_keyboard() -> InlineKeyboardMarkup:
                     text='Белгородская область 🇷🇺',
                     callback_data='Belgorod'
                 )
-            ]            
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )
+
+
+def issue_type_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Критическая ошибка ЛИС',
+                    callback_data='critical'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет обмена с МИС',
+                    callback_data='no_exchange'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет связи с анализаторами',
+                    callback_data='no_connection'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Другое',
+                    callback_data='other'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
         ]
     )

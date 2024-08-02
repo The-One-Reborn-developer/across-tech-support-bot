@@ -8,7 +8,8 @@ from aiogram import F
 
 from app.keyboards import (main_keyboard,
                            back_to_main_keyboard,
-                           region_keyboard)
+                           region_keyboard,
+                           issue_type_keyboard)
 
 router = Router()
 
@@ -35,7 +36,7 @@ async def start(message: Message) -> None:
 
 @router.callback_query(F.data == "main")
 async def main(callback: CallbackQuery, state: FSMContext) -> None:
-    await state.reset_state(with_data=False)
+    await state.clear()
 
     content = f"Пожалуйста, выберите пункт из меню ниже 🔽"
               
@@ -59,11 +60,81 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
               "и их настроек доступа, а также на подключение нового " \
               "оборудования можно передать <b>ТОЛЬКО</b> письмом на почту " \
               "support@across.ru\n\n" \
-              "Пожалуйста, укажите Ваш регион 🌍🌎🌏 из списка внизу 🔽"
+              "Укажите Ваш регион 🌍🌎🌏 из списка внизу 🔽"
 
     await callback.message.edit_text(content,
                                      parse_mode="HTML",
                                      reply_markup=region_keyboard())
+    
+
+@router.callback_query(Request.region, F.data)
+async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data({"region": callback.data})
+    await state.set_state(Request.organization)
+
+    content = "Напишите название Вашей медицинской организации 🏥"
+
+    await callback.message.edit_text(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.organization)
+async def organization(message: Message, state: FSMContext) -> None:
+    await state.update_data({"organization": message.text})
+    await state.set_state(Request.lab)
+
+    content = "Напишите название Вашей лаборатории 🩺"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.lab)
+async def lab(message: Message, state: FSMContext) -> None:
+    await state.update_data({"lab": message.text})
+    await state.set_state(Request.name)
+
+    content = "Напишите Ваше ФИО 🛂"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.name)
+async def name(message: Message, state: FSMContext) -> None:
+    await state.update_data({"name": message.text})
+    await state.set_state(Request.position)
+
+    content = "Напишите Вашу должность 👨‍⚕️👩‍⚕️"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.position)
+async def position(message: Message, state: FSMContext) -> None:
+    await state.update_data({"position": message.text})
+    await state.set_state(Request.email)
+
+    content = "Напишите Вашу электронную почту 📧"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.email)
+async def email(message: Message, state: FSMContext) -> None:
+    await state.update_data({"email": message.text})
+    await state.set_state(Request.phone)
+
+    content = "Напишите Ваш телефон 📱"
+
+    await message.answer(content, reply_markup=back_to_main_keyboard())
+
+
+@router.message(Request.phone)
+async def phone(message: Message, state: FSMContext) -> None:
+    await state.update_data({"phone": message.text})
+    await state.set_state(Request.request_type)
+
+    content = "Выберите тип заявки 📝"
+
+    await message.answer(content, reply_markup=issue_type_keyboard())
 
 
 @router.callback_query(F.data == "request_status")
