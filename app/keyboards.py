@@ -1,6 +1,5 @@
 from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
-import urllib.parse
 
 
 def main_keyboard() -> InlineKeyboardMarkup:
@@ -67,9 +66,21 @@ def region_keyboard() -> InlineKeyboardMarkup:
 
 
 def medical_organization_keyboard() -> InlineKeyboardMarkup:
-    # TODO
-    pass
+    with open('medical_organizations.txt', 'r') as f:
+        medical_organizations = f.read().split('\n')
     
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=organization,
+                    callback_data=str(organization)
+                )
+            ]
+            for organization in medical_organizations
+        ]
+    )
+
 
 def issue_type_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(

@@ -68,19 +68,14 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
                                      reply_markup=region_keyboard())
     
 
-#@router.callback_query(Request.region) # TODO
-#async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
-@router.message(Request.region)
-async def region(message: Message, state: FSMContext) -> None:
-    await state.update_data({"region": message.text})
-    #await state.update_data({"region": callback.data})
+@router.callback_query(Request.region) # TODO
+async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data({"region": callback.data})
     await state.set_state(Request.organization)
 
-    content = "Напишите название Вашей медицинской организации 🏥"
-    #content = "Выберите Вашу медицинскую организацию 🏥"
+    content = "Выберите Вашу медицинскую организацию 🏥"
 
-    await message.answer(content, reply_markup=back_to_main_keyboard())
-    #await callback.message.answer(content, reply_markup=medical_organization_keyboard())
+    await callback.message.answer(content, reply_markup=medical_organization_keyboard())
 
 
 @router.callback_query(Request.organization)
