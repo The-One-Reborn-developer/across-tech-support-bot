@@ -158,7 +158,8 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(Request.request_description)
 async def request_description(message: Message, state: FSMContext) -> None:
-    await state.update_data({"request_description": message.text})
+    message_content = message.photo if message.photo else message.text
+    await state.update_data({"request_description": message_content})
 
     content = "Ваша заявка принята ✅\n" \
               f"{await state.get_data()}"
