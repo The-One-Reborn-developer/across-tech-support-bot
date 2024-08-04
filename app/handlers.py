@@ -11,6 +11,7 @@ from app.keyboards import (main_keyboard,
                            region_keyboard,
                            medical_organization_keyboard,
                            issue_type_keyboard)
+from app.json_conversion import conversion_to_json
 
 router = Router()
 
@@ -127,7 +128,7 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Request.request_description)
 
     if callback.data == "critical":
-        content = "Опишите проблему 📝 или предоставьте фото или скриншоты 📷"
+        content = "Опишите проблему 📝"
     elif callback.data == "no_exchange":
         content = "Опишите проблему 📝 и предоставьте ШК ЛИС или ИДМИС"
     elif callback.data == "no_connection":
@@ -144,8 +145,11 @@ async def request_description(message: Message, state: FSMContext) -> None:
     message_content = message.photo if message.photo else message.text
     await state.update_data({"request_description": message_content})
 
-    content = "Ваша заявка принята ✅\n" \
-              f"{await state.get_data()}"
+    content = "Ваша заявка принята ✅"
+
+    print(conversion_to_json(await state.get_data()))
+
+    await state.clear()
 
     await message.answer(content, reply_markup=back_to_main_keyboard())
 
