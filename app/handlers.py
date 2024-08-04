@@ -11,7 +11,6 @@ from app.keyboards import (main_keyboard,
                            region_keyboard,
                            medical_organization_keyboard,
                            issue_type_keyboard)
-from app.json_conversion import conversion_to_json
 
 router = Router()
 
@@ -146,8 +145,6 @@ async def request_description(message: Message, state: FSMContext) -> None:
     await state.update_data({"request_description": message_content})
 
     content = "Ваша заявка принята ✅"
-
-    print(conversion_to_json(await state.get_data()))
 
     await state.clear()
 
