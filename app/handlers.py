@@ -12,6 +12,8 @@ from app.keyboards import (main_keyboard,
                            medical_organization_keyboard,
                            issue_type_keyboard)
 
+import app.database.requests as requests
+
 router = Router()
 
 class Request(StatesGroup):
@@ -26,6 +28,8 @@ class Request(StatesGroup):
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
+    await requests.set_user(message.from_user.id)
+
     content = f"Здравствуйте, {message.from_user.full_name}!\n" \
               f"Я - бот технической поддержки Акросс.\n" \
               f"Пожалуйста, выберите пункт из меню ниже 🔽"
