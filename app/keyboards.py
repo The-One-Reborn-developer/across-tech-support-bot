@@ -79,6 +79,12 @@ def medical_organization_keyboard() -> InlineKeyboardMarkup:
             ]
             for organization in medical_organizations
         ]
+        + [[
+            InlineKeyboardButton(
+                text='Назад в главное меню ◀️',
+                callback_data='main'
+            )
+        ]]
     )
 
 

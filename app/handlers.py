@@ -17,10 +17,8 @@ router = Router()
 class Request(StatesGroup):
     region = State()
     organization = State()
-    lab = State()
     name = State()
     position = State()
-    email = State()
     phone = State()
     request_type = State()
     request_description = State()
@@ -79,23 +77,13 @@ async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.callback_query(Request.organization)
-async def medical_organization(callback: CallbackQuery, state: FSMContext) -> None:
+async def organization(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"organization": callback.data})
-    await state.set_state(Request.lab)
-
-    content = "Напишите название Вашей лаборатории 🩺"
-
-    await callback.message.answer(content, reply_markup=back_to_main_keyboard())
-
-
-@router.message(Request.lab)
-async def lab(message: Message, state: FSMContext) -> None:
-    await state.update_data({"lab": message.text})
     await state.set_state(Request.name)
 
     content = "Напишите Ваше ФИО 🛂"
 
-    await message.answer(content, reply_markup=back_to_main_keyboard())
+    await callback.message.answer(content, reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.name)
@@ -111,31 +99,26 @@ async def name(message: Message, state: FSMContext) -> None:
 @router.message(Request.position)
 async def position(message: Message, state: FSMContext) -> None:
     await state.update_data({"position": message.text})
-    await state.set_state(Request.email)
-
-    content = "Напишите Вашу электронную почту 📧"
-
-    await message.answer(content, reply_markup=back_to_main_keyboard())
-
-
-@router.message(Request.email)
-async def email(message: Message, state: FSMContext) -> None:
-    await state.update_data({"email": message.text})
     await state.set_state(Request.phone)
 
-    content = "Напишите Ваш телефон 📱"
+    content = "Напишите Ваш контактный телефон 📱"
 
     await message.answer(content, reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.phone)
 async def phone(message: Message, state: FSMContext) -> None:
-    await state.update_data({"phone": message.text})
-    await state.set_state(Request.request_type)
+    if len(message.text) != 11:
+        content = "Некорректный номер телефона 🚫\n"
 
-    content = "Выберите тип заявки 📝"
+        return await message.answer(content)
+    else:
+        await state.update_data({"phone": message.text})
+        await state.set_state(Request.request_type)
 
-    await message.answer(content, reply_markup=issue_type_keyboard())
+        content = "Выберите тип заявки 📝"
+
+        await message.answer(content, reply_markup=issue_type_keyboard())
 
 
 @router.callback_query(Request.request_type)
