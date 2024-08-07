@@ -20,7 +20,7 @@ class User(Base):
     position: Mapped[str] = mapped_column(String(100), nullable=True)
     region: Mapped[str] = mapped_column(String(100), nullable=True)
     phone: Mapped[str] = mapped_column(String(11), nullable=True)
-    medical_organization: Mapped[str] = mapped_column(String(100), nullable=True)
+    medical_organization: Mapped[str] = mapped_column(String(200), nullable=True)
 
 
 async def async_main() -> None:

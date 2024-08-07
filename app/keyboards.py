@@ -46,6 +46,44 @@ def back_to_main_keyboard() -> InlineKeyboardMarkup:
     )
 
 
+def confirmation_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Понятно 👍',
+                    callback_data='further'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )
+
+
+def found_user_confirmation_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Понятно 👍👍',
+                    callback_data='found_user_further'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )
+
+
 def region_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
