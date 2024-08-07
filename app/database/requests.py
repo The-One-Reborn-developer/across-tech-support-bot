@@ -5,7 +5,7 @@ from sqlalchemy import select, update
 
 
 async def set_user(telegram_id: int) -> None:
-    with async_session() as session:
+    async with async_session() as session:
         async with session.begin():
             user = await session.scalar(select(User).where(User.telegram_id == telegram_id))
 
@@ -13,3 +13,9 @@ async def set_user(telegram_id: int) -> None:
                 user = User(telegram_id=telegram_id)
                 session.add(user)
                 await session.commit()
+
+
+async def get_user(telegram_id: int) -> User:
+    async with async_session() as session:
+        async with session.begin():
+            return await session.scalars(select(User))

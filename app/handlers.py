@@ -70,7 +70,7 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
                                      reply_markup=region_keyboard())
     
 
-@router.callback_query(Request.region) # TODO
+@router.callback_query(Request.region)
 async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"region": callback.data})
     await state.set_state(Request.organization)

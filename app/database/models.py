@@ -16,11 +16,11 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id = mapped_column(BigInteger)
-    name: Mapped[str] = mapped_column(String(100))
-    position: Mapped[str] = mapped_column(String(100))
-    region: Mapped[str] = mapped_column(String(100))
-    phone: Mapped[str] = mapped_column(String(11))
-    medical_organization: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(100), nullable=True)
+    position: Mapped[str] = mapped_column(String(100), nullable=True)
+    region: Mapped[str] = mapped_column(String(100), nullable=True)
+    phone: Mapped[str] = mapped_column(String(11), nullable=True)
+    medical_organization: Mapped[str] = mapped_column(String(100), nullable=True)
 
 
 async def async_main() -> None:
