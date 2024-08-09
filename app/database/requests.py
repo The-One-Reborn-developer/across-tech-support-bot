@@ -1,7 +1,7 @@
 from app.database.models import async_session
 from app.database.models import User
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 
 async def set_user(telegram_id: int) -> None:
