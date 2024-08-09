@@ -131,7 +131,7 @@ async def position(message: Message, state: FSMContext) -> None:
 @router.message(Request.phone)
 async def phone(message: Message, state: FSMContext) -> None:
     if len(message.text) != 11:
-        content = "Некорректный номер телефона 🚫\n"
+        content = "Некорректный номер телефона 🚫"
 
         return await message.answer(content)
     else:
