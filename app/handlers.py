@@ -8,8 +8,9 @@ from aiogram import F
 
 import app.keyboards as keyboards
 import app.database.requests as requests
-import app.ticket_request as ticket_request
-import app.users_request as users_request
+import app.create_new_ticket as create_new_ticket
+import app.check_for_user_in_db as check_for_user_in_db
+import app.create_new_user as create_new_user
 
 router = Router()
 
@@ -88,7 +89,11 @@ async def futher(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(Request.region)
 async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"region": callback.data})
-    await requests.update_user(callback.from_user.id, region=callback.data)
+
+    if callback.data == "Belgorod":
+        region_data = "Белгородская область"
+
+    await requests.update_user(callback.from_user.id, region=region_data)
     await state.set_state(Request.medical_organization)
 
     content = "Выберите Вашу медицинскую организацию 🏥"
@@ -187,18 +192,35 @@ async def request_description(message: Message, state: FSMContext) -> None:
     content = "Ваша заявка принята ✅"
 
     user_data = await requests.get_user(message.from_user.id)
+    user_name = user_data[0]
+    user_position = user_data[1]
+    user_region = user_data[2]
+    user_phone = user_data[3]
+    user_medical_organization = user_data[4]
     fsm_user_data = await state.get_data()
 
-    await users_request.send_request(user_data[-3])
-    '''
-    await ticket_request.send_request(user_data[0],
-                                user_data[1],
-                                user_data[2],
-                                user_data[3],
-                                user_data[4],
-                                fsm_user_data["request_type"],
-                                fsm_user_data["request_description"])
-    '''
+    user_id = await check_for_user_in_db.send_request(user_name,
+                                                      user_position,
+                                                      user_region,
+                                                      user_phone,
+                                                      user_medical_organization)
+
+    if user_id:
+        print(f'user_id = {user_id}')
+        '''
+        await create_new_ticket.send_request(user_id,
+                                             fsm_user_data["request_type"],
+                                             fsm_user_data["request_description"])
+        '''
+    else:
+        print('user_id = None')
+        '''
+        await create_new_user.send_request(user_name,
+                                           user_position,
+                                           user_region,
+                                           user_phone,
+                                           user_medical_organization)
+        '''
     await state.clear()
 
     await message.answer(content,
