@@ -29,10 +29,8 @@ async def find_user(phone: str) -> int | None:
         response = requests.get(url, headers=headers)
         response_json = response.json()
 
-        user_email_data = f'{phone}@auto.bot'
-
         for user in response_json['data']:
-            if user['email'] == user_email_data:
+            if user['phone'] == phone:
                 return user['id']
 
     return None
