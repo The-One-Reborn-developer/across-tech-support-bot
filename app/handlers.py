@@ -8,7 +8,8 @@ from aiogram import F
 
 import app.keyboards as keyboards
 import app.database.requests as requests
-import app.send_request as send_request
+import app.ticket_request as ticket_request
+import app.users_request as users_request
 
 router = Router()
 
@@ -188,14 +189,16 @@ async def request_description(message: Message, state: FSMContext) -> None:
     user_data = await requests.get_user(message.from_user.id)
     fsm_user_data = await state.get_data()
 
-    await send_request.send_request(user_data[0],
+    await users_request.send_request(user_data[-3])
+    '''
+    await ticket_request.send_request(user_data[0],
                                 user_data[1],
                                 user_data[2],
                                 user_data[3],
                                 user_data[4],
                                 fsm_user_data["request_type"],
                                 fsm_user_data["request_description"])
-
+    '''
     await state.clear()
 
     await message.answer(content,
