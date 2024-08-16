@@ -90,12 +90,14 @@ async def send_request(name: str,
                        f"ФИО заявителя: {name}; " + \
                        f"Регион: {region}; " + \
                        f"Мед. организация: {medical_organization}; " + \
-                       f"Должность: {position}; " + \
-                       f"Телефон: {phone}"
+                       f"Должность: {position}; "
+    
+    user_email_data = f'{phone}@auto.bot'
 
     payload = {
         "title": "Across-Tex",
         "description": description_data,
+        "user_email": user_email_data,
         "custom_fields": {
             "12":16
             }

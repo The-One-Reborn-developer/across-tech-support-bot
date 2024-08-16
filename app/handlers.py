@@ -62,7 +62,10 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
     
     user_data = await requests.get_user(callback.from_user.id)
 
-    if user_data[0] and user_data[1] and user_data[2] and user_data[3] and user_data[4]:
+    if user_data is None:
+        await callback.message.edit_text(content, parse_mode="HTML",
+                                     reply_markup=keyboards.confirmation_keyboard())
+    elif user_data[0] and user_data[1] and user_data[2] and user_data[3] and user_data[4]:
         await callback.message.edit_text(content, parse_mode="HTML",
                                      reply_markup=keyboards.found_user_confirmation_keyboard())
     else:
@@ -123,7 +126,7 @@ async def position(message: Message, state: FSMContext) -> None:
     await requests.update_user(message.from_user.id, position=message.text)
     await state.set_state(Request.phone)
 
-    content = "Напишите Ваш контактный телефон 📱"
+    content = "Напишите Ваш контактный телефон в формате 8-xxx-xxx-xx-xx 📱"
 
     await message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
@@ -131,7 +134,7 @@ async def position(message: Message, state: FSMContext) -> None:
 
 @router.message(Request.phone)
 async def phone(message: Message, state: FSMContext) -> None:
-    if len(message.text) != 11:
+    if len(message.text) != 11 or message.text[0] == "+" or message.text[0] != "8":
         content = "Некорректный номер телефона 🚫"
 
         return await message.answer(content)

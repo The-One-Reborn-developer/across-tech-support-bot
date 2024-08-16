@@ -22,11 +22,14 @@ async def get_user(telegram_id: int) -> User | None:
 
             data = []
 
-            data.append(user.name)
-            data.append(user.position)
-            data.append(user.region)
-            data.append(user.phone)
-            data.append(user.medical_organization)
+            if user:
+                data.append(user.name)
+                data.append(user.position)
+                data.append(user.region)
+                data.append(user.phone)
+                data.append(user.medical_organization)
+            else:
+                return None
 
             return data
         
