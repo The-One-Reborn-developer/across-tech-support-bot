@@ -32,9 +32,7 @@ async def send_request(name: str, position: str, region: str, phone: str, medica
         user_email_data = f'{phone}@auto.bot'
 
         for user in response_json['data']:
-            with open('users.json', 'a') as f:
-                f.write(f"{user['id']}, {user['email']}\n")
             if user['email'] == user_email_data:
                 return user['id']
-    
+
     return None

@@ -212,15 +212,13 @@ async def request_description(message: Message, state: FSMContext) -> None:
                                              fsm_user_data["request_type"],
                                              fsm_user_data["request_description"])
         '''
-    else:
-        print('user_id = None')
-        '''
+    elif user_id is None:
         await create_new_user.send_request(user_name,
                                            user_position,
                                            user_region,
                                            user_phone,
                                            user_medical_organization)
-        '''
+        
     await state.clear()
 
     await message.answer(content,
