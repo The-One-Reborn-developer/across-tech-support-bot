@@ -3,7 +3,7 @@ import base64, os, requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def send_request(name: str, position: str, region: str, phone: str, medical_organization: str) -> int | None:
+async def create_user(name: str, phone: str, medical_organization: str) -> int | None:
     load_dotenv(find_dotenv())
 
     url = 'https://helpdesk.across.ru/api/v2/users/'
@@ -25,10 +25,12 @@ async def send_request(name: str, position: str, region: str, phone: str, medica
         "organization": medical_organization,
         "department": [1, 2],
         "group_id": 1,
-        "password": 
+        "password": 123
     }
 
     response = requests.post(url, headers=headers, json=payload)
 
-    print(response.status_code)
-    print(response.json())
+    if response.status_code == 200:
+        return response.json()['data']['id']
+
+    return None

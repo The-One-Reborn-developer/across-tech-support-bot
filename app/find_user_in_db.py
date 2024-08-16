@@ -3,7 +3,7 @@ import base64, os, requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def send_request(name: str, position: str, region: str, phone: str, medical_organization: str) -> int | None:
+async def find_user(phone: str) -> int | None:
     load_dotenv(find_dotenv())
 
     auth_string = f'{os.getenv("EMAIL")}:{os.getenv("API")}'
