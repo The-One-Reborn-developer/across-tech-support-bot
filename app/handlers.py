@@ -188,8 +188,6 @@ async def request_description(message: Message, state: FSMContext) -> None:
     message_content = message.photo if message.photo else message.text
     await state.update_data({"request_description": message_content})
 
-    content = "Ваша заявка принята ✅"
-
     user_data = await requests.get_user(message.from_user.id)
     user_name = user_data[0]
     user_position = user_data[1]
@@ -197,6 +195,9 @@ async def request_description(message: Message, state: FSMContext) -> None:
     user_phone = user_data[3]
     user_medical_organization = user_data[4]
     fsm_user_data = await state.get_data()
+
+    content = "Ваша заявка в обработке, ожидайте ⏳"
+    await message.answer(content)
 
     user_id = await find_user_in_db.find_user(user_phone)
 
@@ -221,6 +222,7 @@ async def request_description(message: Message, state: FSMContext) -> None:
         
     await state.clear()
 
+    content = "Ваша заявка принята ✅"
     await message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
 
