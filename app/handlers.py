@@ -9,8 +9,8 @@ from aiogram import F
 import app.keyboards as keyboards
 import app.database.requests as requests
 import app.create_new_ticket as create_new_ticket
-import app.check_for_user_in_db as check_for_user_in_db
-import app.create_new_user as create_new_user
+import app.find_user_in_db as find_user_in_db
+import app.create_new_user_in_db as create_new_user_in_db
 
 router = Router()
 
@@ -89,11 +89,7 @@ async def futher(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(Request.region)
 async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"region": callback.data})
-
-    if callback.data == "Belgorod":
-        region_data = "Белгородская область"
-
-    await requests.update_user(callback.from_user.id, region=region_data)
+    await requests.update_user(callback.from_user.id, region=callback.data)
     await state.set_state(Request.medical_organization)
 
     content = "Выберите Вашу медицинскую организацию 🏥"
@@ -199,25 +195,26 @@ async def request_description(message: Message, state: FSMContext) -> None:
     user_medical_organization = user_data[4]
     fsm_user_data = await state.get_data()
 
-    user_id = await check_for_user_in_db.send_request(user_name,
-                                                      user_position,
-                                                      user_region,
-                                                      user_phone,
-                                                      user_medical_organization)
+    user_id = await find_user_in_db.find_user(user_phone)
 
     if user_id:
         print(f'user_id = {user_id}')
-        '''
-        await create_new_ticket.send_request(user_id,
-                                             fsm_user_data["request_type"],
-                                             fsm_user_data["request_description"])
-        '''
+        
+        await create_new_ticket.create_ticket(user_id,
+                                              user_region,
+                                              user_position,
+                                              fsm_user_data["request_type"],
+                                              fsm_user_data["request_description"])
     elif user_id is None:
-        await create_new_user.send_request(user_name,
-                                           user_position,
-                                           user_region,
-                                           user_phone,
-                                           user_medical_organization)
+        new_user_id = await create_new_user_in_db.create_user(user_name,
+                                                              user_phone,
+                                                              user_medical_organization)
+        
+        await create_new_ticket.create_ticket(new_user_id,
+                                              user_region,
+                                              user_position,
+                                              fsm_user_data["request_type"],
+                                              fsm_user_data["request_description"])
         
     await state.clear()
 
