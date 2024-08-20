@@ -25,7 +25,7 @@ async def send_request(name: str, position: str, region: str, phone: str, medica
         "organization": medical_organization,
         "department": [1, 2],
         "group_id": 1,
-        "password": 
+        "password": 123
     }
 
     response = requests.post(url, headers=headers, json=payload)
