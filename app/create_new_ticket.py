@@ -31,11 +31,8 @@ async def create_ticket(user_id: int,
     elif request_type == "other":
         request_type_data = "Другое"
 
-    if user_region == "Belgorod":
-        user_region_data = "Белгородская область"
-
     description_data = f"{request_description}; " + \
-                       f"Регион: {user_region_data}; " + \
+                       f"Регион: {user_region}; " + \
                        f"Должность: {user_position}; "
 
     payload = {

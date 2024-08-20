@@ -88,8 +88,11 @@ async def futher(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(Request.region)
 async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
+    if callback.data == "Belgorod":
+        region_data = "Белгородская область"
+
     await state.update_data({"region": callback.data})
-    await requests.update_user(callback.from_user.id, region=callback.data)
+    await requests.update_user(callback.from_user.id, region=region_data)
     await state.set_state(Request.medical_organization)
 
     content = "Выберите Вашу медицинскую организацию 🏥"
@@ -128,7 +131,7 @@ async def position(message: Message, state: FSMContext) -> None:
     await requests.update_user(message.from_user.id, position=message.text)
     await state.set_state(Request.phone)
 
-    content = "Напишите Ваш контактный телефон в формате 8-xxx-xxx-xx-xx 📱"
+    content = "Напишите Ваш контактный телефон в формате 9101234567 (без 8 и без +7) 📱"
 
     await message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
@@ -136,7 +139,7 @@ async def position(message: Message, state: FSMContext) -> None:
 
 @router.message(Request.phone)
 async def phone(message: Message, state: FSMContext) -> None:
-    if len(message.text) != 11 or message.text[0] == "+" or message.text[0] != "8":
+    if len(message.text) != 10 or message.text[0] == "+":
         content = "Некорректный номер телефона 🚫"
 
         return await message.answer(content)

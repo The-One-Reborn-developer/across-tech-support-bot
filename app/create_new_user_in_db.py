@@ -30,6 +30,9 @@ async def create_user(name: str, phone: str, medical_organization: str) -> int |
 
     response = requests.post(url, headers=headers, json=payload)
 
+    print(f"Status Code: {response.status_code}")
+    print(f"Response Body: {response.text}")
+
     if response.status_code == 200:
         return response.json()['data']['id']
 
