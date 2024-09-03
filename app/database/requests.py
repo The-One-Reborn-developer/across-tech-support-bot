@@ -1,5 +1,5 @@
 from app.database.models import async_session
-from app.database.models import User
+from app.database.models import User, Tickets
 
 from sqlalchemy import select
 
@@ -44,3 +44,12 @@ async def update_user(telegram_id: int, **kwargs) -> None:
                     setattr(user, key, value)
 
                 await session.commit()
+
+async def set_ticket(telegram_id: int, ticket_id: int) -> None:
+    async with async_session() as session:
+        async with session.begin():
+            ticket = Tickets(telegram_id=telegram_id, ticket_id=ticket_id)
+
+            session.add(ticket)
+            await session.commit()
+

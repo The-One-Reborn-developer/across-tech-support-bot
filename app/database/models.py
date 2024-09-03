@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, String
+from sqlalchemy import BigInteger, String, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
@@ -21,6 +21,13 @@ class User(Base):
     region: Mapped[str] = mapped_column(String(100), nullable=True)
     phone: Mapped[str] = mapped_column(String(11), nullable=True)
     medical_organization: Mapped[str] = mapped_column(String(200), nullable=True)
+
+class Tickets(Base):
+    __tablename__ = 'tickets'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    telegram_id = mapped_column(BigInteger)
+    ticket_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
 async def async_main() -> None:

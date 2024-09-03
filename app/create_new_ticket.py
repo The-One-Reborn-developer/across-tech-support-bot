@@ -2,12 +2,16 @@ import base64, os, requests
 
 from dotenv import load_dotenv, find_dotenv
 
+from app.database.requests import set_ticket
 
-async def create_ticket(user_id: int,
-                        user_region: str,
-                        user_position: str,
-                        request_type: str,
-                        request_description: str) -> None:
+
+async def create_ticket(
+        telegram_id: int,
+        user_id: int,
+        user_region: str,
+        user_position: str,
+        request_type: str,
+        request_description: str) -> int | None:
     load_dotenv(find_dotenv())
 
     url = 'https://helpdesk.across.ru/api/v2/tickets'
@@ -48,3 +52,9 @@ async def create_ticket(user_id: int,
 
     print(f"Status Code: {response.status_code}")
     print(f"Response Body: {response.text}")
+
+    ticket_id = response.json()['data']['id']
+
+    await set_ticket(telegram_id, ticket_id)
+
+    return ticket_id

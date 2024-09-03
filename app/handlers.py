@@ -188,7 +188,8 @@ async def request_description(message: Message, state: FSMContext) -> None:
     message_content = message.photo if message.photo else message.text
     await state.update_data({"request_description": message_content})
 
-    user_data = await requests.get_user(message.from_user.id)
+    telegram_id = message.from_user.id
+    user_data = await requests.get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
@@ -202,27 +203,32 @@ async def request_description(message: Message, state: FSMContext) -> None:
     user_id = await find_user_in_db.find_user(user_phone)
 
     if user_id:
-        print(f'user_id = {user_id}')
+        print(f'User found. user_id = {user_id}')
         
-        await create_new_ticket.create_ticket(user_id,
-                                              user_region,
-                                              user_position,
-                                              fsm_user_data["request_type"],
-                                              fsm_user_data["request_description"])
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            user_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"])
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(user_name,
-                                                              user_phone,
-                                                              user_medical_organization)
-        
-        await create_new_ticket.create_ticket(new_user_id,
-                                              user_region,
-                                              user_position,
-                                              fsm_user_data["request_type"],
-                                              fsm_user_data["request_description"])
+        new_user_id = await create_new_user_in_db.create_user(
+            user_name,
+            user_phone,
+            user_medical_organization)
+
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            new_user_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"])
         
     await state.clear()
 
-    content = "Ваша заявка принята ✅"
+    content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
 
