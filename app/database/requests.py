@@ -45,6 +45,7 @@ async def update_user(telegram_id: int, **kwargs) -> None:
 
                 await session.commit()
 
+
 async def set_ticket(telegram_id: int, ticket_id: int) -> None:
     async with async_session() as session:
         async with session.begin():
@@ -53,3 +54,27 @@ async def set_ticket(telegram_id: int, ticket_id: int) -> None:
             session.add(ticket)
             await session.commit()
 
+
+async def get_all_user_tickets(telegram_id: int) -> list | None:
+    async with async_session() as session:
+        async with session.begin():
+            tickets = await session.scalars(select(Tickets).where(Tickets.telegram_id == telegram_id))
+
+            tickets_all = tickets.all()
+
+            ticket_ids = []
+
+            for ticket in tickets_all:
+                ticket_ids.append(ticket.ticket_id)
+
+            return ticket_ids
+        
+
+async def delete_ticket(ticket_id: int) -> None:
+    async with async_session() as session:
+        async with session.begin():
+            ticket = await session.scalar(select(Tickets).where(Tickets.ticket_id == ticket_id))
+
+            if ticket:
+                session.delete(ticket)
+                await session.commit()

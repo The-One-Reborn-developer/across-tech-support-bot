@@ -11,6 +11,7 @@ import app.database.requests as requests
 import app.create_new_ticket as create_new_ticket
 import app.find_user_in_db as find_user_in_db
 import app.create_new_user_in_db as create_new_user_in_db
+import app.get_ticket_status as get_ticket_status
 
 router = Router()
 
@@ -22,6 +23,9 @@ class Request(StatesGroup):
     phone = State()
     request_type = State()
     request_description = State()
+
+class Ticket(StatesGroup):
+    ticket_id = State()
 
 
 @router.message(CommandStart())
@@ -234,8 +238,36 @@ async def request_description(message: Message, state: FSMContext) -> None:
 
 
 @router.callback_query(F.data == "request_status")
-async def request_status(callback: CallbackQuery) -> None:
-    content = "Данная функция пока недоступна 🙁"
+async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
+    tickets = await requests.get_all_user_tickets(callback.from_user.id)
+
+    if tickets:
+        await state.set_state(Ticket.ticket_id)
+        new_tickets_keyboard = keyboards.tickets_keyboard(tickets)
+
+        content = "Ваши заявки 📝"
+
+        await callback.message.edit_text(content,
+                                         reply_markup=new_tickets_keyboard)
+    else:
+        content = "У Вас нет активных заявок 🙁"
+
+        await callback.message.edit_text(content,
+                                         reply_markup=keyboards.back_to_main_keyboard())
+        
+    
+@router.callback_query(Ticket.ticket_id)
+async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data({"ticket_id": callback.data})
+
+    ticket_status = await get_ticket_status.get_ticket_status(int(callback.data))
+
+    if ticket_status is None:
+        content = "Статус Вашей заявки: Не выполнена 🚫"
+    else:
+        content = f"Статус Вашей заявки: Выполнена ✅"
+
+        await requests.delete_ticket(int(callback.data))
 
     await callback.message.edit_text(content,
                                      reply_markup=keyboards.back_to_main_keyboard())
