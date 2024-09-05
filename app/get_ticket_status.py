@@ -3,7 +3,7 @@ import base64, os, requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def get_ticket_status(ticket_id: int) -> int | None:
+async def get_ticket_status(ticket_id: int) -> list | None:
     load_dotenv(find_dotenv())
     
     url = f'https://helpdesk.across.ru/api/v2/tickets/{ticket_id}'
@@ -24,3 +24,8 @@ async def get_ticket_status(ticket_id: int) -> int | None:
     print(f"Response Body: {response.text}")
 
     ticket_status = response.json()['data']['status_id']
+    ticket_sla = response.json()['data']['sla_date']
+
+    ticket_status_data = [ticket_status, ticket_sla]
+
+    return ticket_status_data

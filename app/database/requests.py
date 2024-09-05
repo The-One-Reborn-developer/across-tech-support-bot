@@ -76,5 +76,5 @@ async def delete_ticket(ticket_id: int) -> None:
             ticket = await session.scalar(select(Tickets).where(Tickets.ticket_id == ticket_id))
 
             if ticket:
-                session.delete(ticket)
+                await session.delete(ticket)
                 await session.commit()

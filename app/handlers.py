@@ -189,8 +189,14 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(Request.request_description)
 async def request_description(message: Message, state: FSMContext) -> None:
-    message_content = message.photo if message.photo else message.text
-    await state.update_data({"request_description": message_content})
+    if message.photo:
+        message_text = message.caption
+        message_photo = message.photo[-1].file_id
+    else:
+        message_text = message.text
+        message_photo = None
+
+    await state.update_data({"request_description": message_text})
 
     telegram_id = message.from_user.id
     user_data = await requests.get_user(telegram_id)
@@ -215,7 +221,8 @@ async def request_description(message: Message, state: FSMContext) -> None:
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"])
+            fsm_user_data["request_description"],
+            message_photo)
     elif user_id is None:
         new_user_id = await create_new_user_in_db.create_user(
             user_name,
@@ -228,7 +235,8 @@ async def request_description(message: Message, state: FSMContext) -> None:
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"])
+            fsm_user_data["request_description"],
+            message_photo)
         
     await state.clear()
 
@@ -260,14 +268,15 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
 async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"ticket_id": callback.data})
 
-    ticket_status = await get_ticket_status.get_ticket_status(int(callback.data))
+    ticket_status_data = await get_ticket_status.get_ticket_status(int(callback.data))
 
-    if ticket_status is None:
-        content = "Статус Вашей заявки: Не выполнена 🚫"
-    else:
+    if ticket_status_data:
         content = f"Статус Вашей заявки: Выполнена ✅"
 
         await requests.delete_ticket(int(callback.data))
+    else:
+        content = "Статус Вашей заявки: Не выполнена 🚫\n" \
+                 f"Примерное время обработки заявки: {ticket_status_data[1]}"
 
     await callback.message.edit_text(content,
                                      reply_markup=keyboards.back_to_main_keyboard())

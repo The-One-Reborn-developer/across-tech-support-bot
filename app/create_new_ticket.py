@@ -11,7 +11,8 @@ async def create_ticket(
         user_region: str,
         user_position: str,
         request_type: str,
-        request_description: str) -> int | None:
+        request_description: str,
+        photo: str | None) -> int | None:
     load_dotenv(find_dotenv())
 
     url = 'https://helpdesk.across.ru/api/v2/tickets'
@@ -45,7 +46,8 @@ async def create_ticket(
         "user_id": user_id,
         "custom_fields": {
             "12":16
-            }
+        },
+        "files": [photo]
     }
 
     response = requests.post(url, headers=headers, json=payload)
