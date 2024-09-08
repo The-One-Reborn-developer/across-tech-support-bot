@@ -22,8 +22,7 @@ async def create_ticket(
     encoded_string = encoded_bytes.decode("utf-8")
 
     headers = {
-        "Authorization": f"Basic {encoded_string}",
-        "Content-Type": "application/json"
+        "Authorization": f"Basic {encoded_string}"
     }
 
     if request_type == "critical":
@@ -45,8 +44,7 @@ async def create_ticket(
         "user_id": user_id,
         "custom_fields": {
             "12":16
-        },
-        "files": []
+        }
     }
 
     response = requests.post(url, headers=headers, json=payload)

@@ -192,11 +192,10 @@ async def request_description(message: Message, state: FSMContext) -> None:
     if message.photo:
         message_text = message.caption
         message_photo_id = message.photo[-1].file_id
+        await message.bot.download(file=message_photo_id, destination=f"photos/{message.from_user.id}.jpg")
     else:
         message_text = message.text
         message_photo_id = None
-
-    await message.bot.download(file=message_photo_id, destination=f"photos/{message.from_user.id}.jpg")
 
     await state.update_data({"request_description": message_text})
 
