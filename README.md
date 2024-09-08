@@ -6,14 +6,16 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 
 - Receive tech support requests
 - Provide contact info to users
-- Send support tickets to HelpDeskEddy via API (in progress)
-- Receive ticket status update from HelpDeskEddy via API (in progress)
+- Send support tickets to HelpDeskEddy via API
+- Receive ticket status update from HelpDeskEddy via API
 - Receive FAQ articles from HelpDeskEddy via API (in progress)
 
 ## DEPENDENCIES
 
 - [aiogram](https://github.com/aio-libs/aiohttp)
 - [python-dotenv](https://github.com/theskumar/python-dotenv)
+- [aiosqlite](https://github.com/aiosqlite/aiosqlite)
+- [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy)
 
 ## INSTALLATION
 
