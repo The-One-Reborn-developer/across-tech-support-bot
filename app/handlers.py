@@ -174,14 +174,14 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Request.request_description)
 
     if callback.data == "critical":
-        content = "Опишите проблему 📝"
+        content = "Опишите проблему 📝, можете прикрепить фото 📸"
     elif callback.data == "no_exchange":
-        content = "Опишите проблему 📝 и предоставьте ШК ЛИС или ИДМИС"
+        content = "Опишите проблему и предоставьте ШК ЛИС или ИДМИС 📝, можете прикрепить фото 📸"
     elif callback.data == "no_connection":
         content = "Напишите наименование анализатора, ШК ЛИС и предоставьте " \
-                  "описание проблемы 📝"
+                  "описание проблемы 📝, можете прикрепить фото 📸"
     elif callback.data == "other":
-        content = "Подробно опишите Вашу проблему 📝"
+        content = "Подробно опишите Вашу проблему 📝, можете прикрепить фото 📸"
         
     await callback.message.answer(content,
                                   reply_markup=keyboards.back_to_main_keyboard())
@@ -191,10 +191,12 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
 async def request_description(message: Message, state: FSMContext) -> None:
     if message.photo:
         message_text = message.caption
-        message_photo = message.photo[-1].file_id
+        message_photo_id = message.photo[-1].file_id
     else:
         message_text = message.text
-        message_photo = None
+        message_photo_id = None
+
+    await message.bot.download(file=message_photo_id, destination=f"photos/{message.from_user.id}.jpg")
 
     await state.update_data({"request_description": message_text})
 
@@ -221,8 +223,7 @@ async def request_description(message: Message, state: FSMContext) -> None:
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"],
-            message_photo)
+            fsm_user_data["request_description"])
     elif user_id is None:
         new_user_id = await create_new_user_in_db.create_user(
             user_name,
@@ -235,8 +236,7 @@ async def request_description(message: Message, state: FSMContext) -> None:
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"],
-            message_photo)
+            fsm_user_data["request_description"])
         
     await state.clear()
 
