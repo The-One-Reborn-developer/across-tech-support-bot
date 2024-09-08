@@ -269,7 +269,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
 
     ticket_status_data = await get_ticket_status.get_ticket_status(int(callback.data))
 
-    if ticket_status_data:
+    if ticket_status_data[0] != 'open':
         content = f"Статус Вашей заявки: Выполнена ✅"
 
         await requests.delete_ticket(int(callback.data))
