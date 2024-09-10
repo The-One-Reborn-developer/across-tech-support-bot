@@ -181,3 +181,22 @@ def tickets_keyboard(ticket_ids: list) -> InlineKeyboardMarkup:
             )
         ]]
     )
+
+
+def add_ticket_info_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='add_ticket_info'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет ❎',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )

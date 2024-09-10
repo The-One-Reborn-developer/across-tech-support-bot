@@ -12,6 +12,7 @@ import app.create_new_ticket as create_new_ticket
 import app.find_user_in_db as find_user_in_db
 import app.create_new_user_in_db as create_new_user_in_db
 import app.get_ticket_status as get_ticket_status
+import app.update_ticket as update_ticket
 
 router = Router()
 
@@ -26,6 +27,8 @@ class Request(StatesGroup):
 
 class Ticket(StatesGroup):
     ticket_id = State()
+    add_ticket_info_confirmation = State()
+    add_ticket_info = State()
 
 
 @router.message(CommandStart())
@@ -265,6 +268,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
     
 @router.callback_query(Ticket.ticket_id)
 async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
+    
     await state.update_data({"ticket_id": callback.data})
 
     ticket_status_data = await get_ticket_status.get_ticket_status(int(callback.data))
@@ -273,13 +277,53 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
         content = f"Статус Вашей заявки: Выполнена ✅"
 
         await requests.delete_ticket(int(callback.data))
+
+        await callback.message.edit_text(content,
+                                        reply_markup=keyboards.back_to_main_keyboard())
     else:
         content = "Статус Вашей заявки: Не выполнена 🚫\n" \
-                 f"Примерное время обработки заявки: {ticket_status_data[1]}"
+                 f"Примерное время обработки заявки: {ticket_status_data[1]}\n" \
+                 "Хотите добавить информацию к заявке? 📝"
+        
+        await state.set_state(Ticket.add_ticket_info_confirmation)
+        
+        await callback.message.edit_text(content,
+                                        reply_markup=keyboards.add_ticket_info_keyboard())
 
-    await callback.message.edit_text(content,
-                                     reply_markup=keyboards.back_to_main_keyboard())
 
+@router.callback_query(Ticket.add_ticket_info_confirmation)
+async def add_ticket_info(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.set_state(Ticket.add_ticket_info)
+
+    content = "Напишите информацию к заявке 📝"
+
+    await callback.message.edit_text(content)
+
+
+@router.message(Ticket.add_ticket_info)
+async def add_ticket_info(message: Message, state: FSMContext) -> None:
+    ticket_id = await state.get_data()
+    ticket_id = ticket_id["ticket_id"]
+    user_data = await requests.get_user(message.from_user.id)
+    user_phone = user_data[3]
+
+    user_id = await find_user_in_db.find_user(user_phone)
+
+    add_ticket_info_data = await update_ticket.update_ticket(ticket_id, message.text, user_id)
+
+    await message.answer('Заявка обновляется, подождите ⏳')
+
+    if add_ticket_info_data == 200:
+        content = "Информация добавлена ✅"
+
+        await message.answer(content,
+                             reply_markup=keyboards.back_to_main_keyboard())
+    else:
+        content = "Произошла ошибка при добавлении информации к заявке 🙁\n" \
+                  "Попробуйте ещё раз..."
+
+        await message.answer(content,
+                             reply_markup=keyboards.back_to_main_keyboard())
 
 @router.callback_query(F.data == "faq")
 async def faq(callback: CallbackQuery) -> None:
