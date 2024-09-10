@@ -23,7 +23,7 @@ async def get_ticket_status(ticket_id: int) -> list | None:
     print(f"Status Code: {response.status_code}")
     print(f"Response Body: {response.text}")
 
-    ticket_status = response.json()['data']['status_id']
+    ticket_status = response.json()['data']['deleted']
     ticket_sla = response.json()['data']['sla_date']
 
     ticket_status_data = [ticket_status, ticket_sla]
