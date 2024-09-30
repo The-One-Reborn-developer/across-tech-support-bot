@@ -8,10 +8,12 @@ from app.database.requests import set_ticket
 async def create_ticket(
         telegram_id: int,
         user_id: int,
+        chat_id: int,
         user_region: str,
         user_position: str,
         request_type: str,
-        request_description: str) -> int | None:
+        request_description: str,
+        has_photo: bool) -> int | None:
     load_dotenv(find_dotenv())
 
     url = 'https://helpdesk.across.ru/api/v2/tickets'
@@ -38,22 +40,34 @@ async def create_ticket(
                        f"Регион: {user_region}; " + \
                        f"Должность: {user_position}; "
 
-    payload = {
-        "title": request_type_data,
-        "description": description_data,
-        "user_id": user_id,
-        "custom_fields": {
-            "12":16
+    if has_photo:
+        payload = {
+            "title": request_type_data,
+            "description": description_data,
+            "user_id": user_id,
+            "files[0]": open(f"app/photos/{telegram_id}.jpg", "rb"),
+            "custom_fields": {
+                "12":16
+            }
         }
-    }
+        response = requests.post(url, headers=headers, data=payload)
+    else:
+        payload = {
+            "title": request_type_data,
+            "description": description_data,
+            "user_id": user_id,
+            "custom_fields": {
+                "12":16
+            }
+        }
 
-    response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload)
 
     print(f"Status Code: {response.status_code}")
     print(f"Response Body: {response.text}")
 
     ticket_id = response.json()['data']['id']
 
-    await set_ticket(telegram_id, ticket_id)
+    await set_ticket(telegram_id, ticket_id, chat_id)
 
     return ticket_id

@@ -192,10 +192,14 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(Request.request_description)
 async def request_description(message: Message, state: FSMContext) -> None:
+    has_photo = False
+    chat_id = message.chat.id
+
     if message.photo:
         message_text = message.caption
         message_photo_id = message.photo[-1].file_id
-        await message.bot.download(file=message_photo_id, destination=f"photos/{message.from_user.id}.jpg")
+        has_photo = True
+        await message.bot.download(file=message_photo_id, destination=f"app/photos/{message.from_user.id}.jpg")
     else:
         message_text = message.text
         message_photo_id = None
@@ -222,10 +226,12 @@ async def request_description(message: Message, state: FSMContext) -> None:
         new_ticket_id = await create_new_ticket.create_ticket(
             telegram_id,
             user_id,
+            chat_id,
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"])
+            fsm_user_data["request_description"],
+            has_photo)
     elif user_id is None:
         new_user_id = await create_new_user_in_db.create_user(
             user_name,
@@ -235,10 +241,12 @@ async def request_description(message: Message, state: FSMContext) -> None:
         new_ticket_id = await create_new_ticket.create_ticket(
             telegram_id,
             new_user_id,
+            chat_id,
             user_region,
             user_position,
             fsm_user_data["request_type"],
-            fsm_user_data["request_description"])
+            fsm_user_data["request_description"],
+            has_photo)
         
     await state.clear()
 

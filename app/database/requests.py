@@ -1,7 +1,7 @@
+from sqlalchemy import select
+
 from app.database.models import async_session
 from app.database.models import User, Tickets
-
-from sqlalchemy import select
 
 
 async def set_user(telegram_id: int) -> None:
@@ -46,10 +46,10 @@ async def update_user(telegram_id: int, **kwargs) -> None:
                 await session.commit()
 
 
-async def set_ticket(telegram_id: int, ticket_id: int) -> None:
+async def set_ticket(telegram_id: int, ticket_id: int, chat_id: int) -> None:
     async with async_session() as session:
         async with session.begin():
-            ticket = Tickets(telegram_id=telegram_id, ticket_id=ticket_id)
+            ticket = Tickets(telegram_id=telegram_id, ticket_id=ticket_id, chat_id=chat_id)
 
             session.add(ticket)
             await session.commit()
@@ -68,6 +68,23 @@ async def get_all_user_tickets(telegram_id: int) -> list | None:
                 ticket_ids.append(ticket.ticket_id)
 
             return ticket_ids
+        
+
+async def get_ticket(ticket_id: int) -> Tickets | None:
+    async with async_session() as session:
+        async with session.begin():
+            ticket = await session.scalar(select(Tickets).where(Tickets.ticket_id == ticket_id))
+
+            data = []
+
+            if ticket:
+                data.append(ticket.ticket_id)
+                data.append(ticket.telegram_id)
+                data.append(ticket.chat_id)
+            else:
+                return None
+
+            return data
         
 
 async def delete_ticket(ticket_id: int) -> None:

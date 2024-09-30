@@ -28,6 +28,7 @@ class Tickets(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id = mapped_column(BigInteger)
     ticket_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    chat_id = mapped_column(BigInteger, nullable=True)
 
 
 async def async_main() -> None:
