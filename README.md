@@ -22,14 +22,15 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 ## INSTALLATION
 
 ```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
+sudo apt install nginx
 ```
 
 ## NGINX server configuration
 
-1. ```sudo apt install nginx```
-
-2. Add the following to `/etc/nginx/sites-available/default`:
+1. Add the following to `/etc/nginx/sites-available/default`:
 
 ```nginx
 server {
@@ -46,4 +47,4 @@ server {
 }
 ```
 
-3. Restart Nginx: ```sudo systemctl restart nginx```
+2. Restart Nginx: ```sudo systemctl restart nginx```
