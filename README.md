@@ -25,7 +25,7 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-sudo apt install nginx
+sudo apt install nginx apache2-utils
 ```
 
 ## NGINX server configuration
@@ -34,8 +34,11 @@ sudo apt install nginx
 
 ```nginx
 server {
-    listen 80;
-    server_name {input public IP address here};
+    listen 8087;
+    server_name ftp.across.ru;
+
+    auth_basic "Restricted";
+    auth_basic_user_file /etc/nginx/.htpasswd;
 
     location / {
         proxy_pass http://127.0.0.1:5000;
@@ -47,4 +50,25 @@ server {
 }
 ```
 
-2. Restart Nginx: ```sudo systemctl restart nginx```
+2. Configure `/etc/nginx/.htpasswd`:
+
+```nginx
+sudo htpasswd -c /etc/nginx/.htpasswd across
+```
+Enter password when prompted
+
+3. Test the configuration: ```sudo nginx -t```
+
+4. Restart Nginx: ```sudo systemctl restart nginx```
+
+## RUNNING
+
+To run the bot:
+```bash
+python3 main.py
+```
+
+To run the server:
+```bash
+python3 -m app.webhook
+```
