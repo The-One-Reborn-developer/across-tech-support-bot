@@ -310,6 +310,8 @@ async def add_ticket_info(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(Ticket.add_ticket_info)
 async def add_ticket_info(message: Message, state: FSMContext) -> None:
+    await message.answer('Заявка обновляется, подождите ⏳')
+    
     ticket_id = await state.get_data()
     ticket_id = ticket_id["ticket_id"]
     user_data = await requests.get_user(message.from_user.id)
@@ -318,8 +320,6 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
     user_id = await find_user_in_db.find_user(user_phone)
 
     add_ticket_info_data = await update_ticket.update_ticket(ticket_id, message.text, user_id)
-
-    await message.answer('Заявка обновляется, подождите ⏳')
 
     if add_ticket_info_data == 200:
         content = "Информация добавлена ✅"
