@@ -37,31 +37,27 @@ async def create_ticket(
         request_type_data = "Другое"
 
     description_data = f"{request_description}; " + \
-                       f"Регион: {user_region}; " + \
-                       f"Должность: {user_position}; "
+                        f"Регион: {user_region}; " + \
+                        f"Должность: {user_position}"
 
     if has_photo:
         file_path = f"app/photos/{telegram_id}.jpg"
+        
+        payload = {
+            "title": request_type_data,
+            "description": description_data,
+            "user_id": user_id,
+            "custom_fields[12]": '16'
+        }
+        
+        files = [
+            ('files[]',
+            (f"{telegram_id}.jpg",
+            open(file_path, 'rb'),
+            'image/jpeg'))
+        ]
 
-        if os.path.exists(file_path):
-            payload = {
-                "title": request_type_data,
-                "description": description_data,
-                "user_id": user_id,
-                "custom_fields[12]": '16'
-            }
-            
-            files = [
-                ('files[]',
-                (f"{telegram_id}.jpg",
-                open(file_path, 'rb'),
-                'image/jpeg'))
-            ]
-
-            response = requests.post(url, headers=headers, data=payload, files=files)
-        else:
-            print(f"Error: {file_path} not found")
-            return None
+        response = requests.post(url, headers=headers, data=payload, files=files)
     else:
         payload = {
             "title": request_type_data,
