@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import os
 import aiohttp
-import asyncio
+import re
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -14,6 +14,11 @@ app = Flask(__name__)
 
 TOKEN = os.getenv('TOKEN')
 TELEGRAM_API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+
+
+def strip_html_tags(text):
+    clean = re.compile('<.*?>')
+    return re.sub(clean, '', text)
 
 
 @app.route('/', methods=['POST'])
@@ -31,7 +36,7 @@ async def ticket_answer_handler() -> None:
             chat_id = ticket_id_database[2]
 
             if chat_id:
-                text = data['answer_to_ticket']['text']
+                text = strip_html_tags(data['answer_to_ticket']['text'])
                 author = data['answer_to_ticket']['author']
 
                 # Format the message to be sent to the user
