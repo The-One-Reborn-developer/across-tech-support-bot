@@ -17,7 +17,7 @@ TELEGRAM_API_URL = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
 
 
 @app.route('/', methods=['POST'])
-async def ticket_answer_handler():
+async def ticket_answer_handler() -> None:
     data = request.get_json()
 
     ticket_id = data['answer_to_ticket']['ticketID']
