@@ -177,14 +177,15 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Request.request_description)
 
     if callback.data == "critical":
-        content = "Опишите проблему 📝"
+        content = "Опишите проблему 📝, можете прикрепить одно фото/скриншот 📸"
     elif callback.data == "no_exchange":
-        content = "Опишите проблему и предоставьте ШК ЛИС или ИДМИС 📝"
+        content = "Опишите проблему и предоставьте ШК ЛИС или ИДМИС 📝, " \
+                  "можете прикрепить одно фото/скриншот 📸"
     elif callback.data == "no_connection":
         content = "Напишите наименование анализатора, ШК ЛИС и предоставьте " \
-                  "описание проблемы 📝"
+                  "описание проблемы 📝, можете прикрепить одно фото/скриншот 📸"
     elif callback.data == "other":
-        content = "Подробно опишите Вашу проблему 📝"
+        content = "Подробно опишите Вашу проблему 📝, можете прикрепить одно фото/скриншот 📸"
         
     await callback.message.answer(content,
                                   reply_markup=keyboards.back_to_main_keyboard())
@@ -249,8 +250,11 @@ async def request_description(message: Message, state: FSMContext) -> None:
             has_photo)
         
     await state.clear()
-
-    content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
+    
+    if new_ticket_id is None:
+        content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
+    else:
+        content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
 
@@ -268,7 +272,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.message.edit_text(content,
                                          reply_markup=new_tickets_keyboard)
     else:
-        content = "У Вас нет активных заявок 🙁"
+        content = "У Вас нет активных заявок 🤔"
 
         await callback.message.edit_text(content,
                                          reply_markup=keyboards.back_to_main_keyboard())

@@ -41,23 +41,34 @@ async def create_ticket(
                        f"Должность: {user_position}; "
 
     if has_photo:
-        payload = {
-            "title": request_type_data,
-            "description": description_data,
-            "user_id": user_id,
-            "files[0]": open(f"app/photos/{telegram_id}.jpg", "rb"),
-            "custom_fields": {
-                "12":16
+        file_path = f"app/photos/{telegram_id}.jpg"
+
+        if os.path.exists(file_path):
+            payload = {
+                "title": request_type_data,
+                "description": description_data,
+                "user_id": user_id,
+                "custom_fields[12]": '16'
             }
-        }
-        response = requests.post(url, headers=headers, data=payload)
+            
+            files = [
+                ('files[]',
+                (f"{telegram_id}.jpg",
+                open(file_path, 'rb'),
+                'image/jpeg'))
+            ]
+
+            response = requests.post(url, headers=headers, data=payload, files=files)
+        else:
+            print(f"Error: {file_path} not found")
+            return None
     else:
         payload = {
             "title": request_type_data,
             "description": description_data,
             "user_id": user_id,
             "custom_fields": {
-                "12":16
+                "12": 16
             }
         }
 
@@ -68,6 +79,9 @@ async def create_ticket(
 
     ticket_id = response.json()['data']['id']
 
-    await set_ticket(telegram_id, ticket_id, chat_id)
-
-    return ticket_id
+    if ticket_id:
+        await set_ticket(telegram_id, ticket_id, chat_id)
+            
+        return ticket_id
+    else:
+        return None
