@@ -39,7 +39,7 @@ async def ticket_answer_handler() -> None:
 
                 # Send the message to the chat
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(TELEGRAM_API_URL, json={'chat_id': chat_id, 'text': content, 'parse_mode': 'MarkdownV2'}) as response:
+                    async with session.post(TELEGRAM_API_URL, json={'chat_id': chat_id, 'text': content, 'parse_mode': 'HTML'}) as response:
                         if response.status != 200:
                             print(f"Failed to send message to chat_id {chat_id}: {await response.text()}")
                             return jsonify({'error': 'Failed to send message'}), 500
