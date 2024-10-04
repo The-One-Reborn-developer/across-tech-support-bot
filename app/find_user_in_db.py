@@ -1,4 +1,6 @@
-import base64, os, requests
+import base64
+import os
+import requests
 
 from dotenv import load_dotenv, find_dotenv
 

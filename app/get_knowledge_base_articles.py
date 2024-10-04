@@ -5,10 +5,10 @@ import requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def get_ticket_status(ticket_id: int) -> list | None:
+async def get_knowledge_base_articles() -> dict:
     load_dotenv(find_dotenv())
-    
-    url = f'https://helpdesk.across.ru/api/v2/tickets/{ticket_id}'
+
+    url = 'https://helpdesk.across.ru/api/v2/knowledge_base/articles/?category_list=3'
 
     auth_string = f'{os.getenv("EMAIL")}:{os.getenv("API")}'
 
@@ -25,9 +25,4 @@ async def get_ticket_status(ticket_id: int) -> list | None:
     print(f"Status Code: {response.status_code}")
     print(f"Response Body: {response.text}")
 
-    ticket_status = response.json()['data']['deleted']
-    ticket_sla = response.json()['data']['sla_date']
-
-    ticket_status_data = [ticket_status, ticket_sla]
-
-    return ticket_status_data
+    return response.json()
