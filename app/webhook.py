@@ -1,13 +1,14 @@
-from flask import Flask, request, jsonify
 import os
+import sys
 import aiohttp
 import re
 
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
 
 from app.database.requests import get_ticket
 
-
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(find_dotenv())
 
 app = Flask(__name__)
@@ -25,6 +26,8 @@ def strip_html_tags(text):
 async def ticket_answer_handler() -> None:
     try:
         data = request.get_json()
+
+        print(data)
 
         ticket_id = data['answer_to_ticket']['ticketID']
 
