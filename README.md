@@ -72,3 +72,8 @@ To run the server:
 ```bash
 python3 -m app.webhook
 ```
+
+## NOTES ON WEBHOOK PICTURE RECEIVING
+
+Employees must send the picture as shown on the screenshot. The picture MUST be visible in the text field. And no more than 1 picture is to be sent in a reply.
+![picture MUST be visible in the text field](./webhook_picture_sending.png)
