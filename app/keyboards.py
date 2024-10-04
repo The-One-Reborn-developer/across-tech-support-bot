@@ -200,3 +200,98 @@ def add_ticket_info_keyboard() -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+def yes_no_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='yes_create_ticket'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )
+
+
+def first_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='first_media_yes'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет ❎\nСоздать заявку с 1 файлом 📸',
+                    callback_data='first_media_no'
+                )
+            ]
+        ]
+    )
+
+
+def second_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='second_media_yes'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет ❎\nСоздать заявку с 2 файлами 📸',
+                    callback_data='second_media_no'
+                )
+            ]
+        ]
+    )
+
+
+def third_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='third_media_yes'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Нет ❎\nСоздать заявку с 3 файлами 📸',
+                    callback_data='third_media_no'
+                )
+            ]
+        ]
+    )
+
+
+def fourth_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text='Да ✅',
+                    callback_data='fourth_media_yes'
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
+                )
+            ]
+        ]
+    )

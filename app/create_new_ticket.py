@@ -1,4 +1,6 @@
-import base64, os, requests
+import base64
+import os
+import requests
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -41,21 +43,27 @@ async def create_ticket(
                         f"Должность: {user_position}"
 
     if has_photo:
-        file_path = f"app/photos/{telegram_id}.jpg"
+        directory_path = f'app/photos/{telegram_id}'
         
+        files = []
+
         payload = {
             "title": request_type_data,
             "description": description_data,
             "user_id": user_id,
             "custom_fields[12]": '16'
         }
-        
-        files = [
-            ('files[]',
-            (f"{telegram_id}.jpg",
-            open(file_path, 'rb'),
-            'image/jpeg'))
-        ]
+
+        # Loop through all files in the directory and add them to the files list
+        for filename in os.listdir(directory_path):
+            # Create the full file path
+            file_path = os.path.join(directory_path, filename)
+
+            # Append the file to the files list in the required format
+            files.append(
+                ('files[]', 
+                (filename, open(file_path, 'rb'), 'image/jpeg'))
+            )
 
         response = requests.post(url, headers=headers, data=payload, files=files)
     else:

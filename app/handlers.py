@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
@@ -24,6 +27,10 @@ class Request(StatesGroup):
     phone = State()
     request_type = State()
     request_description = State()
+    first_media = State()
+    second_media = State()
+    third_media = State()
+    fourth_media = State()
 
 class Ticket(StatesGroup):
     ticket_id = State()
@@ -174,40 +181,164 @@ async def found_user_further(callback: CallbackQuery, state: FSMContext) -> None
 @router.callback_query(Request.request_type)
 async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"request_type": callback.data})
-    await state.set_state(Request.request_description)
+    await state.set_state(Request.first_media)
+
+    try:
+        directory_path = f'app/photos/{callback.from_user.id}'
+        shutil.rmtree(directory_path)
+        print(f"Deleted directory: {directory_path}")
+    except OSError as e:
+        print(f"Error deleting directory {directory_path}: {e}")
 
     if callback.data == "critical":
-        content = "Опишите проблему 📝, можете прикрепить одно фото/скриншот 📸"
+        content = "Опишите проблему 📝, можете прикрепить фото/скриншот 📸\n" \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
     elif callback.data == "no_exchange":
         content = "Опишите проблему и предоставьте ШК ЛИС или ИДМИС 📝, " \
-                  "можете прикрепить одно фото/скриншот 📸"
+                  "можете прикрепить фото/скриншот 📸\n" \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
     elif callback.data == "no_connection":
         content = "Напишите наименование анализатора, ШК ЛИС и предоставьте " \
-                  "описание проблемы 📝, можете прикрепить одно фото/скриншот 📸"
+                  "описание проблемы 📝, можете прикрепить фото/скриншот 📸\n" \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
     elif callback.data == "other":
-        content = "Подробно опишите Вашу проблему 📝, можете прикрепить одно фото/скриншот 📸"
+        content = "Подробно опишите Вашу проблему 📝, можете прикрепить фото/скриншот 📸\n" \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
         
-    await callback.message.answer(content,
+    await callback.message.answer(content, parse_mode="HTML",
                                   reply_markup=keyboards.back_to_main_keyboard())
 
 
-@router.message(Request.request_description)
-async def request_description(message: Message, state: FSMContext) -> None:
-    has_photo = False
-    chat_id = message.chat.id
-
+@router.message(Request.first_media)
+async def first_media(message: Message, state: FSMContext) -> None:
     if message.photo:
-        message_text = message.caption
-        message_photo_id = message.photo[-1].file_id
-        has_photo = True
-        await message.bot.download(file=message_photo_id, destination=f"app/photos/{message.from_user.id}.jpg")
+        if message.caption is None:
+            content = 'Отсутствует описание проблемы 🚫\nПопробуйте ещё раз.'
+
+            return await message.answer(content)
+        else:
+            await state.update_data({"first_media": 'photo'})
+            await state.update_data({"request_description": message.caption})
+            message_photo_id = message.photo[-1].file_id
+
+            directory_path = f'app/photos/{message.from_user.id}'
+            os.makedirs(directory_path, exist_ok=True)
+
+            await message.bot.download(file=message_photo_id,
+                                    destination=f"{directory_path}/{message_photo_id}.jpg")
+        
+            content = 'Хотите добавить еще одно фото/скриншот?\n' \
+                      'Вы сможете позже отправить ещё при добавлении ответа ' \
+                      'к заявке.\n' \
+                      "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
+
+            await message.answer(content, parse_mode="HTML",
+                                reply_markup=keyboards.first_media_yes_no_keyboard())
     else:
-        message_text = message.text
-        message_photo_id = None
+        await state.update_data({"request_description": message.text})
+        await state.set_state(Request.request_description)
 
-    await state.update_data({"request_description": message_text})
+        content = 'Создать заявку?'
 
-    telegram_id = message.from_user.id
+        await message.answer(content,
+                            reply_markup=keyboards.yes_no_keyboard())
+        
+
+@router.callback_query(F.data == 'first_media_yes')
+async def first_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
+    content = 'Отправьте ещё одно фото/скриншот 📸'
+    await state.set_state(Request.second_media)
+    await callback.message.edit_text(content)
+
+
+@router.message(Request.second_media)
+async def second_media(message: Message, state: FSMContext) -> None:
+    if message.photo:
+        message_photo_id = message.photo[-1].file_id
+
+        directory_path = f'app/photos/{message.from_user.id}'
+        os.makedirs(directory_path, exist_ok=True)
+
+        await message.bot.download(file=message_photo_id,
+                                    destination=f"{directory_path}/{message_photo_id}.jpg")
+        
+        content = 'Хотите добавить еще одно фото/скриншот?\n' \
+                  'Вы сможете позже отправить ещё при добавлении ответа ' \
+                  'к заявке.\n' \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
+
+        await message.answer(content, parse_mode="HTML",
+                            reply_markup=keyboards.second_media_yes_no_keyboard())
+    else:
+        content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
+
+        await message.answer(content)
+
+
+@router.callback_query(F.data == 'second_media_yes')
+async def second_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
+    content = 'Отправьте ещё одно фото/скриншот 📸'
+    await state.set_state(Request.third_media)
+    await callback.message.edit_text(content)
+
+
+@router.message(Request.third_media)
+async def third_media(message: Message, state: FSMContext) -> None:
+    if message.photo:
+        message_photo_id = message.photo[-1].file_id
+
+        directory_path = f'app/photos/{message.from_user.id}'
+        os.makedirs(directory_path, exist_ok=True)
+
+        await message.bot.download(file=message_photo_id,
+                                    destination=f"{directory_path}/{message_photo_id}.jpg")
+        
+        content = 'Хотите добавить еще одно фото/скриншот?\n' \
+                  'Вы сможете позже отправить ещё при добавлении ответа ' \
+                  'к заявке.\n' \
+                  "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
+
+        await message.answer(content, parse_mode="HTML",
+                            reply_markup=keyboards.third_media_yes_no_keyboard())
+    else:
+        content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
+
+        await message.answer(content)
+
+    
+
+@router.callback_query(F.data == 'third_media_yes')
+async def third_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
+    content = 'Отправьте ещё одно фото/скриншот 📸'
+    await state.set_state(Request.fourth_media)
+    await callback.message.edit_text(content)
+
+
+@router.message(Request.fourth_media)
+async def fourth_media(message: Message, state: FSMContext) -> None:
+    if message.photo:
+        message_photo_id = message.photo[-1].file_id
+
+        directory_path = f'app/photos/{message.from_user.id}'
+        os.makedirs(directory_path, exist_ok=True)
+
+        await message.bot.download(file=message_photo_id,
+                                    destination=f"{directory_path}/{message_photo_id}.jpg")
+        
+        content = 'Создать заявку?'
+
+        await message.answer(content,
+                            reply_markup=keyboards.fourth_media_yes_no_keyboard())
+    else:
+        content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
+
+        await message.answer(content)
+
+
+@router.callback_query(F.data == 'fourth_media_yes')
+async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
+    chat_id = callback.message.chat.id
+    telegram_id = callback.from_user.id
     user_data = await requests.get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
@@ -215,9 +346,10 @@ async def request_description(message: Message, state: FSMContext) -> None:
     user_phone = user_data[3]
     user_medical_organization = user_data[4]
     fsm_user_data = await state.get_data()
+    has_photo = True
 
     content = "Ваша заявка в обработке, ожидайте ⏳"
-    await message.answer(content)
+    await callback.message.edit_text(content)
 
     user_id = await find_user_in_db.find_user(user_phone)
 
@@ -255,7 +387,231 @@ async def request_description(message: Message, state: FSMContext) -> None:
         content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
-    await message.answer(content,
+    await callback.message.answer(content,
+                         reply_markup=keyboards.back_to_main_keyboard())
+
+
+@router.callback_query(F.data == "yes_create_ticket")
+async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
+    chat_id = callback.message.chat.id
+    telegram_id = callback.from_user.id
+    user_data = await requests.get_user(telegram_id)
+    user_name = user_data[0]
+    user_position = user_data[1]
+    user_region = user_data[2]
+    user_phone = user_data[3]
+    user_medical_organization = user_data[4]
+    fsm_user_data = await state.get_data()
+    has_photo = False
+
+    content = "Ваша заявка в обработке, ожидайте ⏳"
+    await callback.message.edit_text(content)
+
+    user_id = await find_user_in_db.find_user(user_phone)
+
+    if user_id:
+        print(f'User found. user_id = {user_id}')
+        
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+    elif user_id is None:
+        new_user_id = await create_new_user_in_db.create_user(
+            user_name,
+            user_phone,
+            user_medical_organization)
+
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            new_user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+        
+    await state.clear()
+    
+    if new_ticket_id is None:
+        content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
+    else:
+        content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
+    await callback.message.answer(content,
+                         reply_markup=keyboards.back_to_main_keyboard())
+
+
+@router.callback_query(F.data == "first_media_no")
+async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
+    chat_id = callback.message.chat.id
+    telegram_id = callback.from_user.id
+    user_data = await requests.get_user(telegram_id)
+    user_name = user_data[0]
+    user_position = user_data[1]
+    user_region = user_data[2]
+    user_phone = user_data[3]
+    user_medical_organization = user_data[4]
+    fsm_user_data = await state.get_data()
+    has_photo = True
+
+    content = "Ваша заявка в обработке, ожидайте ⏳"
+    await callback.message.edit_text(content)
+
+    user_id = await find_user_in_db.find_user(user_phone)
+
+    if user_id:
+        print(f'User found. user_id = {user_id}')
+        
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+    elif user_id is None:
+        new_user_id = await create_new_user_in_db.create_user(
+            user_name,
+            user_phone,
+            user_medical_organization)
+
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            new_user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+        
+    await state.clear()
+    
+    if new_ticket_id is None:
+        content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
+    else:
+        content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
+    await callback.message.answer(content,
+                         reply_markup=keyboards.back_to_main_keyboard())
+
+
+@router.callback_query(F.data == "second_media_no")
+async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
+    chat_id = callback.message.chat.id
+    telegram_id = callback.from_user.id
+    user_data = await requests.get_user(telegram_id)
+    user_name = user_data[0]
+    user_position = user_data[1]
+    user_region = user_data[2]
+    user_phone = user_data[3]
+    user_medical_organization = user_data[4]
+    fsm_user_data = await state.get_data()
+    has_photo = True
+
+    content = "Ваша заявка в обработке, ожидайте ⏳"
+    await callback.message.edit_text(content)
+
+    user_id = await find_user_in_db.find_user(user_phone)
+
+    if user_id:
+        print(f'User found. user_id = {user_id}')
+        
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+    elif user_id is None:
+        new_user_id = await create_new_user_in_db.create_user(
+            user_name,
+            user_phone,
+            user_medical_organization)
+
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            new_user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+        
+    await state.clear()
+    
+    if new_ticket_id is None:
+        content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
+    else:
+        content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
+    await callback.message.answer(content,
+                         reply_markup=keyboards.back_to_main_keyboard())
+    
+
+@router.callback_query(F.data == "third_media_no")
+async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
+    chat_id = callback.message.chat.id
+    telegram_id = callback.from_user.id
+    user_data = await requests.get_user(telegram_id)
+    user_name = user_data[0]
+    user_position = user_data[1]
+    user_region = user_data[2]
+    user_phone = user_data[3]
+    user_medical_organization = user_data[4]
+    fsm_user_data = await state.get_data()
+    has_photo = True
+
+    content = "Ваша заявка в обработке, ожидайте ⏳"
+    await callback.message.edit_text(content)
+
+    user_id = await find_user_in_db.find_user(user_phone)
+
+    if user_id:
+        print(f'User found. user_id = {user_id}')
+        
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+    elif user_id is None:
+        new_user_id = await create_new_user_in_db.create_user(
+            user_name,
+            user_phone,
+            user_medical_organization)
+
+        new_ticket_id = await create_new_ticket.create_ticket(
+            telegram_id,
+            new_user_id,
+            chat_id,
+            user_region,
+            user_position,
+            fsm_user_data["request_type"],
+            fsm_user_data["request_description"],
+            has_photo)
+        
+    await state.clear()
+    
+    if new_ticket_id is None:
+        content = "Ваша заявка не была принята 🙁\nПопробуйте ещё раз."
+    else:
+        content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
+    await callback.message.answer(content,
                          reply_markup=keyboards.back_to_main_keyboard())
 
 
@@ -307,13 +663,42 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
 async def add_ticket_info(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Ticket.add_ticket_info)
 
-    content = "Напишите информацию к заявке 📝"
+    try:
+        directory_path = f'app/photos/{callback.from_user.id}'
+        shutil.rmtree(directory_path)
+        print(f"Deleted directory: {directory_path}")
+    except OSError as e:
+        print(f"Error deleting directory {directory_path}: {e}")
+
+    content = "Напишите информацию к заявке 📝, можете прикрепить одно фото/скриншот 📸"
 
     await callback.message.edit_text(content)
 
 
 @router.message(Ticket.add_ticket_info)
 async def add_ticket_info(message: Message, state: FSMContext) -> None:
+    has_photo = False
+    message_text = ''
+
+    if message.photo:
+        if message.caption is None:
+            content = 'Отсутствует описание проблемы 🚫\nПопробуйте ещё раз.'
+
+            return await message.answer(content)
+        else:
+            has_photo = True
+            message_text = message.caption
+
+            message_photo_id = message.photo[-1].file_id
+
+            directory_path = f'app/photos/{message.from_user.id}'
+            os.makedirs(directory_path, exist_ok=True)
+
+            await message.bot.download(file=message_photo_id,
+                                    destination=f"{directory_path}/{message_photo_id}.jpg")
+    else:
+        message_text = message.text
+    
     await message.answer('Заявка обновляется, подождите ⏳')
     
     ticket_id = await state.get_data()
@@ -323,7 +708,11 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
 
     user_id = await find_user_in_db.find_user(user_phone)
 
-    add_ticket_info_data = await update_ticket.update_ticket(ticket_id, message.text, user_id)
+    add_ticket_info_data = await update_ticket.update_ticket(ticket_id,
+                                                             message_text,
+                                                             user_id,
+                                                             has_photo,
+                                                             message.from_user.id)
 
     if add_ticket_info_data == 200:
         content = "Информация добавлена ✅"
