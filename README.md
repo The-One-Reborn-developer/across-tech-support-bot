@@ -8,7 +8,7 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 - Provide contact info to users
 - Send support tickets to HelpDeskEddy via API
 - Receive ticket status update from HelpDeskEddy via API
-- Receive FAQ articles from HelpDeskEddy via API (in progress)
+- Receive FAQ articles from HelpDeskEddy via API
 
 ## DEPENDENCIES
 
