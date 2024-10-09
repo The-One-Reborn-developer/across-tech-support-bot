@@ -25,7 +25,7 @@ from app.keyboards import (main_keyboard,
                            third_media_yes_no_keyboard,
                            fourth_media_yes_no_keyboard,
                            articles_keyboard)
-import app.keyboards as keyboards
+
 import app.database.requests as requests
 import app.create_new_ticket as create_new_ticket
 import app.find_user_in_db as find_user_in_db
@@ -653,7 +653,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
         content = "У Вас нет активных заявок 🤔"
 
         await callback.message.edit_text(content,
-                                         reply_markup=back_to_main_keyboard()))
+                                         reply_markup=back_to_main_keyboard())
         
     
 @router.callback_query(Ticket.ticket_id)
@@ -669,7 +669,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
         await requests.delete_ticket(int(callback.data))
 
         await callback.message.edit_text(content,
-                                        reply_markup=back_to_main_keyboard()))
+                                        reply_markup=back_to_main_keyboard())
     else:
         content = "Статус Вашей заявки: Не выполнена 🚫\n" \
                  f"Примерное время обработки заявки: {ticket_status_data[1]}\n" \
@@ -771,14 +771,12 @@ async def faq(callback: CallbackQuery, state: FSMContext) -> None:
             for article_id, article_info in articles.items():
                 file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
 
-    articles_keyboard = articles_keyboard()
-
     content = "Выберите интересующую Вас статью 📖"
     
     await state.set_state(KnowledgeBase.article_selection)
 
     await callback.message.edit_text(content,
-                                     reply_markup=articles_keyboard)
+                                     reply_markup=articles_keyboard())
 
 
 def strip_html_tags(text):
