@@ -10,6 +10,21 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram import F
 
+from app.keyboards import (main_keyboard,
+                           back_to_main_keyboard,
+                           confirmation_keyboard,
+                           found_user_confirmation_keyboard,
+                           region_keyboard,
+                           medical_organization_keyboard,
+                           issue_type_keyboard,
+                           tickets_keyboard,
+                           add_ticket_info_keyboard,
+                           yes_no_keyboard,
+                           first_media_yes_no_keyboard,
+                           second_media_yes_no_keyboard,
+                           third_media_yes_no_keyboard,
+                           fourth_media_yes_no_keyboard,
+                           articles_keyboard)
 import app.keyboards as keyboards
 import app.database.requests as requests
 import app.create_new_ticket as create_new_ticket
@@ -53,7 +68,7 @@ async def start(message: Message) -> None:
               f"Я - бот технической поддержки Акросс.\n" \
               f"Пожалуйста, выберите пункт из меню ниже 🔽"
               
-    await message.answer(content, reply_markup=keyboards.main_keyboard())
+    await message.answer(content, reply_markup=main_keyboard())
 
 
 @router.callback_query(F.data == "main")
@@ -63,7 +78,7 @@ async def main(callback: CallbackQuery, state: FSMContext) -> None:
     content = f"Пожалуйста, выберите пункт из меню ниже 🔽"
               
     await callback.message.edit_text(content,
-                                     reply_markup=keyboards.main_keyboard())
+                                     reply_markup=main_keyboard())
 
 
 @router.callback_query(F.data == "contacts")
@@ -72,7 +87,7 @@ async def contacts(callback: CallbackQuery) -> None:
               "Адрес электронной почты: support@across.ru"
     
     await callback.message.edit_text(content,
-                                     reply_markup=keyboards.back_to_main_keyboard())
+                                     reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "make_request")
@@ -87,13 +102,13 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
 
     if user_data is None:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=keyboards.confirmation_keyboard())
+                                     reply_markup=confirmation_keyboard())
     elif user_data[0] and user_data[1] and user_data[2] and user_data[3] and user_data[4]:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=keyboards.found_user_confirmation_keyboard())
+                                     reply_markup=found_user_confirmation_keyboard())
     else:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=keyboards.confirmation_keyboard())
+                                     reply_markup=confirmation_keyboard())
 
 
 @router.callback_query(F.data == "further")
@@ -104,7 +119,7 @@ async def futher(callback: CallbackQuery, state: FSMContext) -> None:
 
     await callback.message.edit_text(content,
                                      parse_mode="HTML",
-                                     reply_markup=keyboards.region_keyboard())
+                                     reply_markup=region_keyboard())
 
 
 @router.callback_query(Request.region)
@@ -119,7 +134,7 @@ async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Выберите Вашу медицинскую организацию 🏥"
 
     await callback.message.answer(content,
-                                  reply_markup=keyboards.medical_organization_keyboard())
+                                  reply_markup=medical_organization_keyboard())
 
 
 @router.callback_query(Request.medical_organization)
@@ -131,7 +146,7 @@ async def organization(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Напишите Ваше ФИО 🛂"
 
     await callback.message.answer(content,
-                                  reply_markup=keyboards.back_to_main_keyboard())
+                                  reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.name)
@@ -143,7 +158,7 @@ async def name(message: Message, state: FSMContext) -> None:
     content = "Напишите Вашу должность 👨‍⚕️👩‍⚕️"
 
     await message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.position)
@@ -155,7 +170,7 @@ async def position(message: Message, state: FSMContext) -> None:
     content = "Напишите Ваш контактный телефон в формате 9101234567 (без 8 и без +7) 📱"
 
     await message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.phone)
@@ -172,7 +187,7 @@ async def phone(message: Message, state: FSMContext) -> None:
         content = "Выберите тип заявки 📝"
 
         await message.answer(content,
-                             reply_markup=keyboards.issue_type_keyboard())
+                             reply_markup=issue_type_keyboard())
         
 
 @router.callback_query(F.data == "found_user_further")
@@ -182,7 +197,7 @@ async def found_user_further(callback: CallbackQuery, state: FSMContext) -> None
     content = "Выберите тип заявки 📝"
 
     await callback.message.edit_text(content,
-                                     reply_markup=keyboards.issue_type_keyboard())
+                                     reply_markup=issue_type_keyboard())
 
 
 @router.callback_query(Request.request_type)
@@ -213,7 +228,7 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
                   "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
         
     await callback.message.answer(content, parse_mode="HTML",
-                                  reply_markup=keyboards.back_to_main_keyboard())
+                                  reply_markup=back_to_main_keyboard())
 
 
 @router.message(Request.first_media)
@@ -240,7 +255,7 @@ async def first_media(message: Message, state: FSMContext) -> None:
                       "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
 
             await message.answer(content, parse_mode="HTML",
-                                reply_markup=keyboards.first_media_yes_no_keyboard())
+                                reply_markup=first_media_yes_no_keyboard())
     else:
         await state.update_data({"request_description": message.text})
         await state.set_state(Request.request_description)
@@ -248,7 +263,7 @@ async def first_media(message: Message, state: FSMContext) -> None:
         content = 'Создать заявку?'
 
         await message.answer(content,
-                            reply_markup=keyboards.yes_no_keyboard())
+                            reply_markup=yes_no_keyboard())
         
 
 @router.callback_query(F.data == 'first_media_yes')
@@ -275,7 +290,7 @@ async def second_media(message: Message, state: FSMContext) -> None:
                   "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
 
         await message.answer(content, parse_mode="HTML",
-                            reply_markup=keyboards.second_media_yes_no_keyboard())
+                            reply_markup=second_media_yes_no_keyboard())
     else:
         content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
 
@@ -306,7 +321,7 @@ async def third_media(message: Message, state: FSMContext) -> None:
                   "⚠️<b>Внимание</b>⚠️\nОтправляйте только ОДНО фото/скриншот❗"
 
         await message.answer(content, parse_mode="HTML",
-                            reply_markup=keyboards.third_media_yes_no_keyboard())
+                            reply_markup=third_media_yes_no_keyboard())
     else:
         content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
 
@@ -335,7 +350,7 @@ async def fourth_media(message: Message, state: FSMContext) -> None:
         content = 'Создать заявку?'
 
         await message.answer(content,
-                            reply_markup=keyboards.fourth_media_yes_no_keyboard())
+                            reply_markup=fourth_media_yes_no_keyboard())
     else:
         content = 'Вы не отправили фото/скриншот 🚫\nПопробуйте ещё раз.'
 
@@ -395,7 +410,7 @@ async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await callback.message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "yes_create_ticket")
@@ -451,7 +466,7 @@ async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await callback.message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "first_media_no")
@@ -507,7 +522,7 @@ async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await callback.message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "second_media_no")
@@ -563,7 +578,7 @@ async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await callback.message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
     
 
 @router.callback_query(F.data == "third_media_no")
@@ -619,7 +634,7 @@ async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     else:
         content = f"Ваша заявка принята ✅\nНомер заявки {new_ticket_id}"
     await callback.message.answer(content,
-                         reply_markup=keyboards.back_to_main_keyboard())
+                         reply_markup=back_to_main_keyboard())
 
 
 @router.callback_query(F.data == "request_status")
@@ -628,7 +643,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
 
     if tickets:
         await state.set_state(Ticket.ticket_id)
-        new_tickets_keyboard = keyboards.tickets_keyboard(tickets)
+        new_tickets_keyboard = tickets_keyboard(tickets)
 
         content = "Ваши заявки 📝"
 
@@ -638,7 +653,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
         content = "У Вас нет активных заявок 🤔"
 
         await callback.message.edit_text(content,
-                                         reply_markup=keyboards.back_to_main_keyboard())
+                                         reply_markup=back_to_main_keyboard()))
         
     
 @router.callback_query(Ticket.ticket_id)
@@ -654,7 +669,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
         await requests.delete_ticket(int(callback.data))
 
         await callback.message.edit_text(content,
-                                        reply_markup=keyboards.back_to_main_keyboard())
+                                        reply_markup=back_to_main_keyboard()))
     else:
         content = "Статус Вашей заявки: Не выполнена 🚫\n" \
                  f"Примерное время обработки заявки: {ticket_status_data[1]}\n" \
@@ -663,7 +678,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
         await state.set_state(Ticket.add_ticket_info_confirmation)
         
         await callback.message.edit_text(content,
-                                        reply_markup=keyboards.add_ticket_info_keyboard())
+                                        reply_markup=add_ticket_info_keyboard())
 
 
 @router.callback_query(Ticket.add_ticket_info_confirmation)
@@ -725,13 +740,13 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
         content = "Информация добавлена ✅"
 
         await message.answer(content,
-                             reply_markup=keyboards.back_to_main_keyboard())
+                             reply_markup=back_to_main_keyboard())
     else:
         content = "Произошла ошибка при добавлении информации к заявке 🙁\n" \
                   "Попробуйте ещё раз..."
 
         await message.answer(content,
-                             reply_markup=keyboards.back_to_main_keyboard())
+                             reply_markup=back_to_main_keyboard())
 
 @router.callback_query(F.data == "faq")
 async def faq(callback: CallbackQuery, state: FSMContext) -> None:
@@ -756,7 +771,7 @@ async def faq(callback: CallbackQuery, state: FSMContext) -> None:
             for article_id, article_info in articles.items():
                 file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
 
-    articles_keyboard = keyboards.articles_keyboard()
+    articles_keyboard = articles_keyboard()
 
     content = "Выберите интересующую Вас статью 📖"
     
@@ -781,4 +796,4 @@ async def article_selection(callback: CallbackQuery, state: FSMContext) -> None:
     edited_content = strip_html_tags(content)
 
     await callback.message.edit_text(edited_content, 
-                                     reply_markup=keyboards.back_to_main_keyboard())
+                                     reply_markup=back_to_main_keyboard())
