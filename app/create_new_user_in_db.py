@@ -5,7 +5,7 @@ import requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def create_user(name: str, phone: str, medical_organization: str) -> int | None:
+async def create_new_user_in_db(name: str, phone: str, medical_organization: str) -> int | None:
     load_dotenv(find_dotenv())
 
     url = 'https://helpdesk.across.ru/api/v2/users/'

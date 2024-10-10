@@ -2,7 +2,7 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def add_ticket_info() -> InlineKeyboardMarkup:
+def add_ticket_info_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [

@@ -7,6 +7,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
 from app.keyboards.back_to_main import back_to_main
+import app.keyboards.tickets as tickets_keyboard
+from app.keyboards.add_ticket_info import add_ticket_info_keyboard
 
 from app.get_ticket_status import get_ticket_status
 from app.find_user_in_db import find_user_in_db
@@ -30,7 +32,7 @@ async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
 
     if tickets:
         await state.set_state(Ticket.ticket_id)
-        new_tickets_keyboard = tickets(tickets)
+        new_tickets_keyboard = tickets_keyboard.tickets(tickets)
 
         content = "Ваши заявки 📝"
 
@@ -48,7 +50,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
     
     await state.update_data({"ticket_id": callback.data})
 
-    ticket_status_data = await get_ticket_status.get_ticket_status(int(callback.data))
+    ticket_status_data = await get_ticket_status(int(callback.data))
 
     if ticket_status_data[0] == 1:
         content = f"Статус Вашей заявки: Выполнена ✅"
@@ -65,7 +67,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
         await state.set_state(Ticket.add_ticket_info_confirmation)
         
         await callback.message.edit_text(content,
-                                        reply_markup=add_ticket_info())
+                                        reply_markup=add_ticket_info_keyboard())
 
 
 @ticket_status_router.callback_query(Ticket.add_ticket_info_confirmation)
@@ -115,13 +117,13 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
     user_data = await requests.get_user(message.from_user.id)
     user_phone = user_data[3]
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
-    add_ticket_info_data = await update_ticket.update_ticket(ticket_id,
-                                                             message_text,
-                                                             user_id,
-                                                             has_photo,
-                                                             message.from_user.id)
+    add_ticket_info_data = await update_ticket(ticket_id,
+                                               message_text,
+                                               user_id,
+                                               has_photo,
+                                               message.from_user.id)
 
     if add_ticket_info_data == 200:
         content = "Информация добавлена ✅"

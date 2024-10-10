@@ -1,29 +1,32 @@
-import os
 import shutil
-import re
+import os
 
-from aiogram import Router
-from aiogram.filters import CommandStart
-from aiogram.types import Message, CallbackQuery
-
+from aiogram import Router, F
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from aiogram import F
 
-from app.keyboards import (add_ticket_info, articles, back_to_main, confirmation, first_media_yes_no, found_user_confirmation, fourth_media_yes_no, issue_type, medical_organization, region, second_media_yes_no, third_media_yes_no, tickets, yes_no)
-import app.keyboards.main as main_keyboard
+from app.keyboards.back_to_main import back_to_main
+from app.keyboards.issue_type import issue_type
+from app.keyboards.yes_no import yes_no
+from app.keyboards.confirmation import confirmation
+from app.keyboards.found_user_confirmation import found_user_confirmation
+from app.keyboards.region import region
+from app.keyboards.medical_organization import medical_organization
+from app.keyboards.first_media_yes_no import first_media_yes_no
+from app.keyboards.second_media_yes_no import second_media_yes_no
+from app.keyboards.third_media_yes_no import third_media_yes_no
+from app.keyboards.fourth_media_yes_no import fourth_media_yes_no
+
+from app.create_new_ticket import create_new_ticket
+from app.find_user_in_db import find_user_in_db
+from app.create_new_user_in_db import create_new_user_in_db
 
 import app.database.requests as requests
-import app.create_new_ticket as create_new_ticket
-import app.find_user_in_db as find_user_in_db
-import app.create_new_user_in_db as create_new_user_in_db
-import app.get_ticket_status as get_ticket_status
-import app.update_ticket as update_ticket
-import app.get_knowledge_base_articles as get_knowledge_base_articles
-import app.get_knowledge_base_articles_page as get_knowledge_base_articles_page
-import app.get_article as get_article
 
-router = Router()
+
+create_ticket_router = Router()
+
 
 class Request(StatesGroup):
     region = State()
@@ -39,28 +42,7 @@ class Request(StatesGroup):
     fourth_media = State()
 
 
-@router.message(CommandStart())
-async def start(message: Message) -> None:
-    await requests.set_user(message.from_user.id)
-
-    content = f"Здравствуйте, {message.from_user.full_name}!\n" \
-              f"Я - бот технической поддержки Акросс.\n" \
-              f"Пожалуйста, выберите пункт из меню ниже 🔽"
-              
-    await message.answer(content, reply_markup=main_keyboard.main())
-
-
-@router.callback_query(F.data == "main")
-async def main(callback: CallbackQuery, state: FSMContext) -> None:
-    await state.clear()
-
-    content = f"Пожалуйста, выберите пункт из меню ниже 🔽"
-              
-    await callback.message.edit_text(content,
-                                     reply_markup=main_keyboard.main())
-
-
-@router.callback_query(F.data == "make_request")
+@create_ticket_router.callback_query(F.data == "make_request")
 async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
     content = "⚠️ ВНИМАНИЕ ⚠️\nЗаявки на доработку функционала, разработку " \
               "нового функционала, заявки на изменение состава пользователей " \
@@ -72,16 +54,16 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
 
     if user_data is None:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=confirmation.confirmation_keyboard())
+                                     reply_markup=confirmation())
     elif user_data[0] and user_data[1] and user_data[2] and user_data[3] and user_data[4]:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=found_user_confirmation.found_user_confirmation_keyboard())
+                                     reply_markup=found_user_confirmation())
     else:
         await callback.message.edit_text(content, parse_mode="HTML",
-                                     reply_markup=confirmation.confirmation_keyboard())
+                                     reply_markup=confirmation())
 
 
-@router.callback_query(F.data == "further")
+@create_ticket_router.callback_query(F.data == "further")
 async def futher(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Request.region)
 
@@ -92,7 +74,7 @@ async def futher(callback: CallbackQuery, state: FSMContext) -> None:
                                      reply_markup=region())
 
 
-@router.callback_query(Request.region)
+@create_ticket_router.callback_query(Request.region)
 async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
     if callback.data == "Belgorod":
         region_data = "Белгородская область"
@@ -107,7 +89,7 @@ async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
                                   reply_markup=medical_organization())
 
 
-@router.callback_query(Request.medical_organization)
+@create_ticket_router.callback_query(Request.medical_organization)
 async def organization(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"medical_organization": str(callback.data)})
     await requests.update_user(callback.from_user.id, medical_organization=callback.data)
@@ -119,7 +101,7 @@ async def organization(callback: CallbackQuery, state: FSMContext) -> None:
                                   reply_markup=back_to_main())
 
 
-@router.message(Request.name)
+@create_ticket_router.message(Request.name)
 async def name(message: Message, state: FSMContext) -> None:
     await state.update_data({"name": message.text})
     await requests.update_user(message.from_user.id, name=message.text)
@@ -131,7 +113,7 @@ async def name(message: Message, state: FSMContext) -> None:
                          reply_markup=back_to_main())
 
 
-@router.message(Request.position)
+@create_ticket_router.message(Request.position)
 async def position(message: Message, state: FSMContext) -> None:
     await state.update_data({"position": message.text})
     await requests.update_user(message.from_user.id, position=message.text)
@@ -143,7 +125,7 @@ async def position(message: Message, state: FSMContext) -> None:
                          reply_markup=back_to_main())
 
 
-@router.message(Request.phone)
+@create_ticket_router.message(Request.phone)
 async def phone(message: Message, state: FSMContext) -> None:
     if len(message.text) != 10 or message.text[0] == "+":
         content = "Некорректный номер телефона 🚫"
@@ -160,7 +142,7 @@ async def phone(message: Message, state: FSMContext) -> None:
                              reply_markup=issue_type())
         
 
-@router.callback_query(F.data == "found_user_further")
+@create_ticket_router.callback_query(F.data == "found_user_further")
 async def found_user_further(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(Request.request_type)
 
@@ -170,7 +152,7 @@ async def found_user_further(callback: CallbackQuery, state: FSMContext) -> None
                                      reply_markup=issue_type())
 
 
-@router.callback_query(Request.request_type)
+@create_ticket_router.callback_query(Request.request_type)
 async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"request_type": callback.data})
     await state.set_state(Request.first_media)
@@ -201,7 +183,7 @@ async def request_type(callback: CallbackQuery, state: FSMContext) -> None:
                                   reply_markup=back_to_main())
 
 
-@router.message(Request.first_media)
+@create_ticket_router.message(Request.first_media)
 async def first_media(message: Message, state: FSMContext) -> None:
     if message.photo:
         if message.caption is None:
@@ -236,15 +218,15 @@ async def first_media(message: Message, state: FSMContext) -> None:
                             reply_markup=yes_no())
         
 
-@router.callback_query(F.data == 'first_media_yes')
+@create_ticket_router.callback_query(F.data == 'first_media_yes')
 async def first_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     content = 'Отправьте ещё одно фото/скриншот 📸'
     await state.set_state(Request.second_media)
     await callback.message.edit_text(content)
 
 
-@router.message(Request.second_media)
-async def second_media(message: Message, state: FSMContext) -> None:
+@create_ticket_router.message(Request.second_media)
+async def second_media(message: Message) -> None:
     if message.photo:
         message_photo_id = message.photo[-1].file_id
 
@@ -267,15 +249,15 @@ async def second_media(message: Message, state: FSMContext) -> None:
         await message.answer(content)
 
 
-@router.callback_query(F.data == 'second_media_yes')
+@create_ticket_router.callback_query(F.data == 'second_media_yes')
 async def second_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     content = 'Отправьте ещё одно фото/скриншот 📸'
     await state.set_state(Request.third_media)
     await callback.message.edit_text(content)
 
 
-@router.message(Request.third_media)
-async def third_media(message: Message, state: FSMContext) -> None:
+@create_ticket_router.message(Request.third_media)
+async def third_media(message: Message) -> None:
     if message.photo:
         message_photo_id = message.photo[-1].file_id
 
@@ -299,15 +281,15 @@ async def third_media(message: Message, state: FSMContext) -> None:
 
     
 
-@router.callback_query(F.data == 'third_media_yes')
+@create_ticket_router.callback_query(F.data == 'third_media_yes')
 async def third_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     content = 'Отправьте ещё одно фото/скриншот 📸'
     await state.set_state(Request.fourth_media)
     await callback.message.edit_text(content)
 
 
-@router.message(Request.fourth_media)
-async def fourth_media(message: Message, state: FSMContext) -> None:
+@create_ticket_router.message(Request.fourth_media)
+async def fourth_media(message: Message) -> None:
     if message.photo:
         message_photo_id = message.photo[-1].file_id
 
@@ -327,7 +309,7 @@ async def fourth_media(message: Message, state: FSMContext) -> None:
         await message.answer(content)
 
 
-@router.callback_query(F.data == 'fourth_media_yes')
+@create_ticket_router.callback_query(F.data == 'fourth_media_yes')
 async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
@@ -343,12 +325,12 @@ async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Ваша заявка в обработке, ожидайте ⏳"
     await callback.message.edit_text(content)
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
     if user_id:
         print(f'User found. user_id = {user_id}')
         
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             user_id,
             chat_id,
@@ -358,12 +340,12 @@ async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
             fsm_user_data["request_description"],
             has_photo)
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(
+        new_user_id = await create_new_user_in_db(
             user_name,
             user_phone,
             user_medical_organization)
 
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             new_user_id,
             chat_id,
@@ -383,7 +365,7 @@ async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
                          reply_markup=back_to_main())
 
 
-@router.callback_query(F.data == "yes_create_ticket")
+@create_ticket_router.callback_query(F.data == "yes_create_ticket")
 async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
@@ -399,12 +381,12 @@ async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Ваша заявка в обработке, ожидайте ⏳"
     await callback.message.edit_text(content)
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
     if user_id:
         print(f'User found. user_id = {user_id}')
         
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             user_id,
             chat_id,
@@ -414,12 +396,12 @@ async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
             fsm_user_data["request_description"],
             has_photo)
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(
+        new_user_id = await create_new_user_in_db(
             user_name,
             user_phone,
             user_medical_organization)
 
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             new_user_id,
             chat_id,
@@ -439,7 +421,7 @@ async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
                          reply_markup=back_to_main())
 
 
-@router.callback_query(F.data == "first_media_no")
+@create_ticket_router.callback_query(F.data == "first_media_no")
 async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
@@ -455,12 +437,12 @@ async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Ваша заявка в обработке, ожидайте ⏳"
     await callback.message.edit_text(content)
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
     if user_id:
         print(f'User found. user_id = {user_id}')
         
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             user_id,
             chat_id,
@@ -470,12 +452,12 @@ async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
             fsm_user_data["request_description"],
             has_photo)
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(
+        new_user_id = await create_new_user_in_db(
             user_name,
             user_phone,
             user_medical_organization)
 
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             new_user_id,
             chat_id,
@@ -495,7 +477,7 @@ async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
                          reply_markup=back_to_main())
 
 
-@router.callback_query(F.data == "second_media_no")
+@create_ticket_router.callback_query(F.data == "second_media_no")
 async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
@@ -511,12 +493,12 @@ async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Ваша заявка в обработке, ожидайте ⏳"
     await callback.message.edit_text(content)
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
     if user_id:
         print(f'User found. user_id = {user_id}')
         
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             user_id,
             chat_id,
@@ -526,12 +508,12 @@ async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
             fsm_user_data["request_description"],
             has_photo)
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(
+        new_user_id = await create_new_user_in_db(
             user_name,
             user_phone,
             user_medical_organization)
 
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             new_user_id,
             chat_id,
@@ -551,7 +533,7 @@ async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
                          reply_markup=back_to_main())
     
 
-@router.callback_query(F.data == "third_media_no")
+@create_ticket_router.callback_query(F.data == "third_media_no")
 async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
@@ -567,12 +549,12 @@ async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     content = "Ваша заявка в обработке, ожидайте ⏳"
     await callback.message.edit_text(content)
 
-    user_id = await find_user_in_db.find_user(user_phone)
+    user_id = await find_user_in_db(user_phone)
 
     if user_id:
         print(f'User found. user_id = {user_id}')
         
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             user_id,
             chat_id,
@@ -582,12 +564,12 @@ async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
             fsm_user_data["request_description"],
             has_photo)
     elif user_id is None:
-        new_user_id = await create_new_user_in_db.create_user(
+        new_user_id = await create_new_user_in_db(
             user_name,
             user_phone,
             user_medical_organization)
 
-        new_ticket_id = await create_new_ticket.create_ticket(
+        new_ticket_id = await create_new_ticket(
             telegram_id,
             new_user_id,
             chat_id,

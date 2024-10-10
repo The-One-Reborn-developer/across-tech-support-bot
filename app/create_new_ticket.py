@@ -7,7 +7,7 @@ from dotenv import load_dotenv, find_dotenv
 from app.database.requests import set_ticket
 
 
-async def create_ticket(
+async def create_new_ticket(
         telegram_id: int,
         user_id: int,
         chat_id: int,
