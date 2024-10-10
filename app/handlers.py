@@ -43,9 +43,6 @@ class Ticket(StatesGroup):
     add_ticket_info_confirmation = State()
     add_ticket_info = State()
 
-class KnowledgeBase(StatesGroup):
-    article_selection = State()
-
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
@@ -725,51 +722,3 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
 
         await message.answer(content,
                              reply_markup=back_to_main())
-
-@router.callback_query(F.data == "faq")
-async def faq(callback: CallbackQuery, state: FSMContext) -> None:
-    data = await get_knowledge_base_articles.get_knowledge_base_articles()
-    total_pages = data['pagination']['total_pages']
-
-    with open('app/files/articles_data.txt', 'w', encoding='utf-8') as file:
-        file.write("")
-
-    if total_pages > 1:
-        for page in range(1, total_pages + 1):
-            data = await get_knowledge_base_articles_page.get_knowledge_base_articles_page(page)
-            articles = data['data']
-
-            for article_id, article_info in articles.items():
-                with open('app/files/articles_data.txt', 'a', encoding='utf-8') as file:
-                    file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
-    else:
-        articles = data['data']
-
-        with open('app/files/articles_data.txt', 'a', encoding='utf-8') as file:
-            for article_id, article_info in articles.items():
-                file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
-
-    content = "Выберите интересующую Вас статью 📖"
-    
-    await state.set_state(KnowledgeBase.article_selection)
-
-    await callback.message.edit_text(content,
-                                     reply_markup=articles())
-
-
-def strip_html_tags(text):
-    clean = re.compile('<.*?>')
-    return re.sub(clean, '', text)
-
-
-@router.callback_query(KnowledgeBase.article_selection)
-async def article_selection(callback: CallbackQuery, state: FSMContext) -> None:
-    article_id = callback.data
-
-    data = await get_article.get_article(article_id)
-
-    content = data['data']['body']['ru']
-    edited_content = strip_html_tags(content)
-
-    await callback.message.edit_text(edited_content, 
-                                     reply_markup=back_to_main())
