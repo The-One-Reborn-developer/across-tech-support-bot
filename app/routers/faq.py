@@ -15,6 +15,7 @@ from app.get_article import get_article
 
 faq_router = Router()
 
+
 class KnowledgeBase(StatesGroup):
     article_selection = State()
 

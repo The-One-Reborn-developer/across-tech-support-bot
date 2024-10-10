@@ -5,7 +5,7 @@ import requests
 from dotenv import load_dotenv, find_dotenv
 
 
-async def find_user(phone: str) -> int | None:
+async def find_user_in_db(phone: str) -> int | None:
     load_dotenv(find_dotenv())
 
     auth_string = f'{os.getenv("EMAIL")}:{os.getenv("API")}'
