@@ -10,11 +10,11 @@ from app.routers.faq import faq_router
 from app.routers.ticket_status import ticket_status_router
 from app.routers.create_ticket import create_ticket_router
 
-from app.database.models import async_main
+from app.database.queue.create_database import create_database
 
 
 async def main() -> None:
-    await async_main()
+    await create_database()
     load_dotenv(find_dotenv())
 
     bot = Bot(token=os.getenv('TOKEN'))

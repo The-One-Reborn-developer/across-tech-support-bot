@@ -4,7 +4,7 @@ import requests
 
 from dotenv import load_dotenv, find_dotenv
 
-from app.database.requests import set_ticket
+from app.database.queue.set_ticket import set_ticket
 
 
 async def create_new_ticket(

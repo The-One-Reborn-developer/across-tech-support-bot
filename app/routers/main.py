@@ -7,7 +7,7 @@ from aiogram import F
 
 import app.keyboards.main as main_keyboard
 
-import app.database.requests as requests
+from app.database.queue.set_user import set_user
 
 main_router = Router()
 
@@ -15,7 +15,7 @@ main_router = Router()
 @main_router.message(CommandStart())
 async def start(message: Message, state: FSMContext) -> None:
     await state.clear()
-    await requests.set_user(message.from_user.id)
+    await set_user(message.from_user.id)
 
     content = f"Здравствуйте, {message.from_user.full_name}!\n" \
               f"Я - бот технической поддержки Акросс.\n" \

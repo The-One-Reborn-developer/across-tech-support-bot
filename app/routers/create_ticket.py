@@ -22,7 +22,8 @@ from app.create_new_ticket import create_new_ticket
 from app.find_user_in_db import find_user_in_db
 from app.create_new_user_in_db import create_new_user_in_db
 
-import app.database.requests as requests
+from app.database.queue.get_user import get_user
+from app.database.queue.update_user import update_user
 
 
 create_ticket_router = Router()
@@ -50,7 +51,7 @@ async def make_request(callback: CallbackQuery, state: FSMContext) -> None:
               "оборудования можно передать <b>ТОЛЬКО</b> письмом на почту " \
               "support@across.ru"
     
-    user_data = await requests.get_user(callback.from_user.id)
+    user_data = await get_user(callback.from_user.id)
 
     if user_data is None:
         await callback.message.edit_text(content, parse_mode="HTML",
@@ -80,7 +81,7 @@ async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
         region_data = "Белгородская область"
 
     await state.update_data({"region": callback.data})
-    await requests.update_user(callback.from_user.id, region=region_data)
+    await update_user(callback.from_user.id, region=region_data)
     await state.set_state(Request.medical_organization)
 
     content = "Выберите Вашу медицинскую организацию 🏥"
@@ -92,7 +93,7 @@ async def region_state(callback: CallbackQuery, state: FSMContext) -> None:
 @create_ticket_router.callback_query(Request.medical_organization)
 async def organization(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data({"medical_organization": str(callback.data)})
-    await requests.update_user(callback.from_user.id, medical_organization=callback.data)
+    await update_user(callback.from_user.id, medical_organization=callback.data)
     await state.set_state(Request.name)
 
     content = "Напишите Ваше ФИО 🛂"
@@ -104,7 +105,7 @@ async def organization(callback: CallbackQuery, state: FSMContext) -> None:
 @create_ticket_router.message(Request.name)
 async def name(message: Message, state: FSMContext) -> None:
     await state.update_data({"name": message.text})
-    await requests.update_user(message.from_user.id, name=message.text)
+    await update_user(message.from_user.id, name=message.text)
     await state.set_state(Request.position)
 
     content = "Напишите Вашу должность 👨‍⚕️👩‍⚕️"
@@ -116,7 +117,7 @@ async def name(message: Message, state: FSMContext) -> None:
 @create_ticket_router.message(Request.position)
 async def position(message: Message, state: FSMContext) -> None:
     await state.update_data({"position": message.text})
-    await requests.update_user(message.from_user.id, position=message.text)
+    await update_user(message.from_user.id, position=message.text)
     await state.set_state(Request.phone)
 
     content = "Напишите Ваш контактный телефон в формате 9101234567 (без 8 и без +7) 📱"
@@ -133,7 +134,7 @@ async def phone(message: Message, state: FSMContext) -> None:
         return await message.answer(content)
     else:
         await state.update_data({"phone": message.text})
-        await requests.update_user(message.from_user.id, phone=message.text)
+        await update_user(message.from_user.id, phone=message.text)
         await state.set_state(Request.request_type)
 
         content = "Выберите тип заявки 📝"
@@ -313,7 +314,7 @@ async def fourth_media(message: Message) -> None:
 async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
-    user_data = await requests.get_user(telegram_id)
+    user_data = await get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
@@ -369,7 +370,7 @@ async def fourth_media_yes(callback: CallbackQuery, state: FSMContext) -> None:
 async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
-    user_data = await requests.get_user(telegram_id)
+    user_data = await get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
@@ -425,7 +426,7 @@ async def yes_create_ticket(callback: CallbackQuery, state: FSMContext) -> None:
 async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
-    user_data = await requests.get_user(telegram_id)
+    user_data = await get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
@@ -481,7 +482,7 @@ async def first_media_no(callback: CallbackQuery, state: FSMContext) -> None:
 async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
-    user_data = await requests.get_user(telegram_id)
+    user_data = await get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
@@ -537,7 +538,7 @@ async def second_media_no(callback: CallbackQuery, state: FSMContext) -> None:
 async def third_media_no(callback: CallbackQuery, state: FSMContext) -> None:
     chat_id = callback.message.chat.id
     telegram_id = callback.from_user.id
-    user_data = await requests.get_user(telegram_id)
+    user_data = await get_user(telegram_id)
     user_name = user_data[0]
     user_position = user_data[1]
     user_region = user_data[2]
