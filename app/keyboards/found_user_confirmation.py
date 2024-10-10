@@ -2,13 +2,13 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def fourth_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+def found_user_confirmation() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='Да ✅',
-                    callback_data='fourth_media_yes'
+                    text='Понятно 👍👍',
+                    callback_data='found_user_further'
                 )
             ],
             [

@@ -2,16 +2,19 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def tickets_keyboard(ticket_ids: list) -> InlineKeyboardMarkup:
+def medical_organization() -> InlineKeyboardMarkup:
+    with open('medical_organizations.txt', 'r') as f:
+        medical_organizations = f.read().split('\n')
+    
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=f'🔍 {ticket_id}',
-                    callback_data=str(ticket_id)
+                    text=organization,
+                    callback_data=str(organization)
                 )
             ]
-            for ticket_id in ticket_ids
+            for organization in medical_organizations
         ]
         + [[
             InlineKeyboardButton(

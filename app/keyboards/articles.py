@@ -2,7 +2,7 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def articles_keyboard() -> InlineKeyboardMarkup:
+def articles() -> InlineKeyboardMarkup:
     articles_id = []
     articles_title = []
 

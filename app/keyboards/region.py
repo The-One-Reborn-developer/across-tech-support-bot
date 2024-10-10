@@ -2,18 +2,18 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def add_ticket_info_keyboard() -> InlineKeyboardMarkup:
+def region() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='Да ✅',
-                    callback_data='add_ticket_info'
+                    text='Белгородская область 🇷🇺',
+                    callback_data='Belgorod'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text='Нет ❎',
+                    text='Назад в главное меню ◀️',
                     callback_data='main'
                 )
             ]

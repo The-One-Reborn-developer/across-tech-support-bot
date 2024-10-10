@@ -2,18 +2,18 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def found_user_confirmation_keyboard() -> InlineKeyboardMarkup:
+def add_ticket_info() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='Понятно 👍👍',
-                    callback_data='found_user_further'
+                    text='Да ✅',
+                    callback_data='add_ticket_info'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text='Назад в главное меню ◀️',
+                    text='Нет ❎',
                     callback_data='main'
                 )
             ]

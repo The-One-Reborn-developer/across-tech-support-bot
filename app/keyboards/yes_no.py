@@ -2,19 +2,19 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def first_media_yes_no_keyboard() -> InlineKeyboardMarkup:
+def yes_no() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
                     text='Да ✅',
-                    callback_data='first_media_yes'
+                    callback_data='yes_create_ticket'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text='Нет ❎\nСоздать заявку с 1 файлом 📸',
-                    callback_data='first_media_no'
+                    text='Назад в главное меню ◀️',
+                    callback_data='main'
                 )
             ]
         ]

@@ -2,7 +2,7 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def confirmation_keyboard() -> InlineKeyboardMarkup:
+def confirmation() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [

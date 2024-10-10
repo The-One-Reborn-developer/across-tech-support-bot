@@ -2,19 +2,19 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def region_keyboard() -> InlineKeyboardMarkup:
+def second_media_yes_no() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='Белгородская область 🇷🇺',
-                    callback_data='Belgorod'
+                    text='Да ✅',
+                    callback_data='second_media_yes'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text='Назад в главное меню ◀️',
-                    callback_data='main'
+                    text='Нет ❎\nСоздать заявку с 2 файлами 📸',
+                    callback_data='second_media_no'
                 )
             ]
         ]

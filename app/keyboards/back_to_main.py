@@ -2,15 +2,9 @@ from aiogram.types import (InlineKeyboardButton,
                            InlineKeyboardMarkup)
 
 
-def yes_no_keyboard() -> InlineKeyboardMarkup:
+def back_to_main() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text='Да ✅',
-                    callback_data='yes_create_ticket'
-                )
-            ],
             [
                 InlineKeyboardButton(
                     text='Назад в главное меню ◀️',
