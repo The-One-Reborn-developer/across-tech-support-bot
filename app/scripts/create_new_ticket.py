@@ -4,7 +4,7 @@ import requests
 
 from dotenv import load_dotenv, find_dotenv
 
-from app.database.queue.set_ticket import set_ticket
+from app.tasks.celery import set_ticket_task
 
 
 async def create_new_ticket(
@@ -84,7 +84,7 @@ async def create_new_ticket(
     ticket_id = response.json()['data']['id']
 
     if ticket_id:
-        await set_ticket(telegram_id, ticket_id, chat_id)
+        set_ticket_task.delay(telegram_id, ticket_id, chat_id)
             
         return ticket_id
     else:

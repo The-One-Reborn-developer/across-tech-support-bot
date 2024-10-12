@@ -14,9 +14,9 @@ from app.scripts.get_ticket_status import get_ticket_status
 from app.scripts.find_user_in_db import find_user_in_db
 from app.scripts.update_ticket import update_ticket
 
-from app.database.queue.get_all_user_tickets import get_all_user_tickets
-from app.database.queue.delete_ticket import delete_ticket
-from app.database.queue.get_user import get_user
+from app.tasks.celery import get_all_user_tickets_task
+from app.tasks.celery import delete_ticket_task
+from app.tasks.celery import get_user_task
 
 
 ticket_status_router = Router()
@@ -30,7 +30,9 @@ class Ticket(StatesGroup):
 
 @ticket_status_router.callback_query(F.data == "request_status")
 async def request_status(callback: CallbackQuery, state: FSMContext) -> None:
-    tickets = await get_all_user_tickets(callback.from_user.id)
+    result = get_all_user_tickets_task.delay(callback.from_user.id)
+
+    tickets = result.get()
 
     if tickets:
         await state.set_state(Ticket.ticket_id)
@@ -57,7 +59,7 @@ async def ticket_id(callback: CallbackQuery, state: FSMContext) -> None:
     if ticket_status_data[0] == 1:
         content = f"Статус Вашей заявки: Выполнена ✅"
 
-        await delete_ticket(int(callback.data))
+        delete_ticket_task.delay(int(callback.data))
 
         await callback.message.edit_text(content,
                                         reply_markup=back_to_main())
@@ -116,7 +118,11 @@ async def add_ticket_info(message: Message, state: FSMContext) -> None:
     
     ticket_id = await state.get_data()
     ticket_id = ticket_id["ticket_id"]
-    user_data = await get_user(message.from_user.id)
+
+    result = get_user_task.delay(message.from_user.id)
+
+    user_data = result.get()
+
     user_phone = user_data[3]
 
     user_id = await find_user_in_db(user_phone)

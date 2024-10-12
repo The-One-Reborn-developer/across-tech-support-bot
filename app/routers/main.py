@@ -7,7 +7,7 @@ from aiogram import F
 
 import app.keyboards.main as main_keyboard
 
-from app.database.queue.set_user import set_user
+from app.tasks.celery import set_user_task
 
 main_router = Router()
 
@@ -15,7 +15,7 @@ main_router = Router()
 @main_router.message(CommandStart())
 async def start(message: Message, state: FSMContext) -> None:
     await state.clear()
-    await set_user(message.from_user.id)
+    set_user_task.delay(message.from_user.id)
 
     content = f"Здравствуйте, {message.from_user.full_name}!\n" \
               f"Я - бот технической поддержки Акросс.\n" \

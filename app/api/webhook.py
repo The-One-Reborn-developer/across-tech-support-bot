@@ -6,7 +6,7 @@ import re
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
 
-from app.database.queue.get_ticket import get_ticket
+from app.tasks.celery import get_ticket_task
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(find_dotenv())
@@ -40,7 +40,9 @@ async def ticket_answer_handler() -> None:
 
         print(ticket_id)
 
-        ticket_id_database = await get_ticket(ticket_id)
+        result = get_ticket_task.delay(ticket_id)
+
+        ticket_id_database = result.get()
 
         if ticket_id_database:
             chat_id = ticket_id_database[2]
@@ -104,4 +106,4 @@ async def ticket_answer_handler() -> None:
         return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=True)

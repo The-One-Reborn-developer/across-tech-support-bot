@@ -30,7 +30,7 @@ sudo apt install nginx apache2-utils
 
 ## NGINX server configuration
 
-1. Add the following to `/etc/nginx/sites-available/default`:
+1) Add the following to `/etc/nginx/sites-available/default`:
 
 ```nginx
 server {
@@ -50,25 +50,28 @@ server {
 }
 ```
 
-2. Configure `/etc/nginx/.htpasswd`:
+2) Configure `/etc/nginx/.htpasswd`:
 
 ```nginx
 sudo htpasswd -c /etc/nginx/.htpasswd across
 ```
+
 Enter password when prompted
 
-3. Test the configuration: ```sudo nginx -t```
+3) Test the configuration: ```sudo nginx -t```
 
-4. Restart Nginx: ```sudo systemctl restart nginx```
+4) Restart Nginx: ```sudo systemctl restart nginx```
 
 ## RUNNING
 
 To run the bot:
+
 ```bash
 python3 main.py
 ```
 
 To run the server:
+
 ```bash
 python3 -m app.webhook
 ```

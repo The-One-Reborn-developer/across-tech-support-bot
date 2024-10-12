@@ -10,11 +10,12 @@ from app.routers.faq import faq_router
 from app.routers.ticket_status import ticket_status_router
 from app.routers.create_ticket import create_ticket_router
 
-from app.database.queue.create_database import create_database
+from app.tasks.celery import create_database_tables_task
 
 
 async def main() -> None:
-    await create_database()
+    create_database_tables_task.delay()
+
     load_dotenv(find_dotenv())
 
     bot = Bot(token=os.getenv('TOKEN'))
