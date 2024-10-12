@@ -32,6 +32,3 @@ services:
       context: .
       dockerfile: Dockerfile.flask
     restart: always
-
-volumes:
-  postgres_data:

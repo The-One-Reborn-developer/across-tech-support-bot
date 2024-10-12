@@ -13,5 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code into the container
 COPY . .
 
-# Run the Flask app
-CMD ["python", "api/webhook.py"]
+# Set the PYTHONPATH environment variable
+ENV PYTHONPATH=/app
+
+# Run the app
+CMD ["python", "-m", "app.api.webhook"]
