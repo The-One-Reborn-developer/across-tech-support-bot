@@ -10,9 +10,9 @@ from app.keyboards.back_to_main import back_to_main
 import app.keyboards.tickets as tickets_keyboard
 from app.keyboards.add_ticket_info import add_ticket_info_keyboard
 
-from app.get_ticket_status import get_ticket_status
-from app.find_user_in_db import find_user_in_db
-from app.update_ticket import update_ticket
+from app.scripts.get_ticket_status import get_ticket_status
+from app.scripts.find_user_in_db import find_user_in_db
+from app.scripts.update_ticket import update_ticket
 
 from app.database.queue.get_all_user_tickets import get_all_user_tickets
 from app.database.queue.delete_ticket import delete_ticket

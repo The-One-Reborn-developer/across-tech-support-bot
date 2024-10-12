@@ -22,6 +22,8 @@ async def main() -> None:
 
     dp.include_routers(main_router, contacts_router, faq_router, ticket_status_router, create_ticket_router)
 
+    await bot.delete_webhook(drop_pending_updates=True)
+
     await dp.start_polling(bot)
 
 

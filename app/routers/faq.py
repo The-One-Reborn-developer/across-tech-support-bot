@@ -8,9 +8,9 @@ from aiogram.fsm.context import FSMContext
 from app.keyboards.back_to_main import back_to_main
 from app.keyboards.articles import articles
 
-from app.get_knowledge_base_articles import get_knowledge_base_articles
-from app.get_knowledge_base_articles_page import get_knowledge_base_articles_page
-from app.get_article import get_article
+from app.scripts.get_knowledge_base_articles import get_knowledge_base_articles
+from app.scripts.get_knowledge_base_articles_page import get_knowledge_base_articles_page
+from app.scripts.get_article import get_article
 
 
 faq_router = Router()

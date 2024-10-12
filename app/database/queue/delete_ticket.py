@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from app.database.models.ticket import Ticket
-from app.database.models.engine import async_session
+from app.database.models.async_session import async_session
 
 
 async def delete_ticket(ticket_id: int) -> None:

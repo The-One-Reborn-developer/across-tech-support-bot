@@ -18,9 +18,9 @@ from app.keyboards.second_media_yes_no import second_media_yes_no
 from app.keyboards.third_media_yes_no import third_media_yes_no
 from app.keyboards.fourth_media_yes_no import fourth_media_yes_no
 
-from app.create_new_ticket import create_new_ticket
-from app.find_user_in_db import find_user_in_db
-from app.create_new_user_in_db import create_new_user_in_db
+from app.scripts.create_new_ticket import create_new_ticket
+from app.scripts.find_user_in_db import find_user_in_db
+from app.scripts.create_new_user_in_db import create_new_user_in_db
 
 from app.database.queue.get_user import get_user
 from app.database.queue.update_user import update_user

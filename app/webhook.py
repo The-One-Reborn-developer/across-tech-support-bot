@@ -6,7 +6,7 @@ import re
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
 
-from app.database.requests import get_ticket
+from app.database.queue.get_ticket import get_ticket
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(find_dotenv())

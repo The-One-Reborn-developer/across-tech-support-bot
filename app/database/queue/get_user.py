@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from app.database.models.user import User
-from app.database.models.engine import async_session
+from app.database.models.async_session import async_session
 
 
 async def get_user(telegram_id: int) -> User | None:
