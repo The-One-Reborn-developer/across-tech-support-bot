@@ -74,6 +74,24 @@ Enter password when prompted
 
 Database must be named `across`. Admin`s username and password must be provided as environment variables.
 
+## REDIS configuration
+
+```bash
+sudo nano /etc/sysctl.conf
+```
+
+Add to the end of file:
+
+```bash
+vm.overcommit_memory = 1
+```
+
+Save and apply changes:
+
+```bash
+sudo sysctl -p
+```
+
 ## RUNNING
 
 To run the bot:
