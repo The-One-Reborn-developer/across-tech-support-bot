@@ -3,7 +3,7 @@ from aiogram.types import (InlineKeyboardButton,
 
 
 def medical_organization() -> InlineKeyboardMarkup:
-    with open('medical_organizations.txt', 'r') as f:
+    with open('app/temp/medical_organizations.txt', 'r') as f:
         medical_organizations = f.read().split('\n')
     
     return InlineKeyboardMarkup(
