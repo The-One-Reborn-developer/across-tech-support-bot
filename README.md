@@ -18,6 +18,12 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 - [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy)
 - [flask](https://github.com/pallets/flask)
 - [nginx](https://www.nginx.com/)
+- [apache2-utils](https://httpd.apache.org/docs/2.4/mod/mod_auth_basic.html)
+- [celery](https://docs.celeryq.dev/en/stable/userguide/first-steps-with-celery.html)
+- [redis](https://redis.io/)
+- [postgresql](https://www.postgresql.org/)
+- [psycopg2-binary](https://pypi.org/project/psycopg2-binary/)
+- [requests](https://github.com/psf/requests)
 
 ## INSTALLATION
 
