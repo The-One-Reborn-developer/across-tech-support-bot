@@ -68,6 +68,12 @@ Enter password when prompted
 
 4) Restart Nginx: ```sudo systemctl restart nginx```
 
+## POSTGRESQL database creation
+
+[Refer to the document.](https://docs.google.com/document/d/1mD5awGg9e2u4s8fSouecnFbqLfTAbdRAVvA51Zmu3SM/edit?usp=sharing)
+
+Database must be named `across`. Admin`s username and password must be provided as environment variables.
+
 ## RUNNING
 
 To run the bot:
