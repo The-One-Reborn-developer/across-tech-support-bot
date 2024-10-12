@@ -9,4 +9,4 @@ load_dotenv(find_dotenv())
 
 database_url = os.getenv('DATABASE_URL')
 
-sync_engine = create_engine(database_url, echo=True, pool_size=10, max_overflow=20)
+sync_engine = create_engine(database_url, echo=True)

@@ -14,7 +14,7 @@ from app.database.queue.set_user import set_user
 from app.database.queue.update_user import update_user
 
 
-app = celery.Celery('tasks', broker='redis://localhost:6379/0')
+app = celery.Celery('tasks', broker='redis://redis:6379/0')
 
 
 app.conf.update(
@@ -22,7 +22,7 @@ app.conf.update(
         'app.tasks.celery.*': {'queue': 'database_queues'}
     },
     broker_connection_retry_on_startup = True,
-    result_backend = 'redis://localhost:6379/0',
+    result_backend = 'redis://redis:6379/0',
 )
 
 
