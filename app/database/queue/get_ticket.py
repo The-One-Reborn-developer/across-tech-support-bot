@@ -4,18 +4,16 @@ from app.database.models.ticket import Ticket
 from app.database.models.sync_session import sync_session
 
 
-async def get_ticket(ticket_id: int) -> Ticket | None:
-    async with sync_session() as session:
-        async with session.begin():
-            ticket = await session.scalar(select(Ticket).where(Ticket.ticket_id == ticket_id))
-
-            data = []
+def get_ticket(ticket_id: int) -> Ticket | None:
+    with sync_session() as session:
+        with session.begin():
+            ticket = session.scalar(select(Ticket).where(Ticket.ticket_id == ticket_id))
 
             if ticket:
-                data.append(ticket.ticket_id)
-                data.append(ticket.telegram_id)
-                data.append(ticket.chat_id)
-            else:
-                return None
-
-            return data
+                return [
+                    ticket.ticket_id,
+                    ticket.telegram_id,
+                    ticket.chat_id
+                ]
+            
+            return None
