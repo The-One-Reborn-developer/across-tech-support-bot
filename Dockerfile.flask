@@ -16,5 +16,5 @@ COPY . .
 # Set the PYTHONPATH environment variable
 ENV PYTHONPATH=/app
 
-# Run the app
-CMD ["python", "-m", "app.api.webhook"]
+# Run the Flask app using Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app.api.webhook:app"]

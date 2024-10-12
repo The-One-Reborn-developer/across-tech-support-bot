@@ -18,11 +18,10 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 - [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy)
 - [flask](https://github.com/pallets/flask)
 - [nginx](https://www.nginx.com/)
+- [gunicorn](https://docs.gunicorn.org/en/stable/)
 - [apache2-utils](https://httpd.apache.org/docs/2.4/mod/mod_auth_basic.html)
 - [celery](https://docs.celeryq.dev/en/stable/userguide/first-steps-with-celery.html)
 - [redis](https://redis.io/)
-- [postgresql](https://www.postgresql.org/)
-- [psycopg2-binary](https://pypi.org/project/psycopg2-binary/)
 - [requests](https://github.com/psf/requests)
 
 ## INSTALLATION
@@ -68,12 +67,6 @@ Enter password when prompted
 
 4) Restart Nginx: ```sudo systemctl restart nginx```
 
-## POSTGRESQL database creation
-
-[Refer to the document.](https://docs.google.com/document/d/1mD5awGg9e2u4s8fSouecnFbqLfTAbdRAVvA51Zmu3SM/edit?usp=sharing)
-
-Database must be named `across`. Admin`s username and password must be provided as environment variables.
-
 ## REDIS configuration
 
 ```bash
@@ -94,16 +87,9 @@ sudo sysctl -p
 
 ## RUNNING
 
-To run the bot:
-
 ```bash
-python3 main.py
-```
-
-To run the server:
-
-```bash
-python3 -m app.webhook
+sudo docker-compose build
+sudo docker-compose up
 ```
 
 ## NOTES ON WEBHOOK PICTURE RECEIVING
