@@ -6,7 +6,7 @@ def articles() -> InlineKeyboardMarkup:
     articles_id = []
     articles_title = []
 
-    with open('app/files/articles_data.txt', 'r', encoding='utf-8') as file:
+    with open('app/temp/articles_data.txt', 'r', encoding='utf-8') as file:
         for line in file:
             # Ensure the line contains a comma to split
             if ',' in line:

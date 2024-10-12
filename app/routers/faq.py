@@ -30,7 +30,7 @@ async def faq(callback: CallbackQuery, state: FSMContext) -> None:
     data = await get_knowledge_base_articles()
     total_pages = data['pagination']['total_pages']
 
-    with open('app/files/articles_data.txt', 'w', encoding='utf-8') as file:
+    with open('app/temp/articles_data.txt', 'w', encoding='utf-8') as file:
         file.write("")
 
     if total_pages > 1:
@@ -39,12 +39,12 @@ async def faq(callback: CallbackQuery, state: FSMContext) -> None:
             articles_data = data['data']
 
             for article_id, article_info in articles_data.items():
-                with open('app/files/articles_data.txt', 'a', encoding='utf-8') as file:
+                with open('app/temp/articles_data.txt', 'a', encoding='utf-8') as file:
                     file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
     else:
         articles_data = data['data']
 
-        with open('app/files/articles_data.txt', 'a', encoding='utf-8') as file:
+        with open('app/temp/articles_data.txt', 'a', encoding='utf-8') as file:
             for article_id, article_info in articles_data.items():
                 file.write(f"{article_id},{article_info['title']['ru'].rstrip('.,!?')}\n")
 
