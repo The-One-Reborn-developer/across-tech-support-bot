@@ -30,7 +30,7 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-sudo apt install nginx apache2-utils
+sudo apt install nginx apache2-utils docker docker-compose
 ```
 
 ## NGINX server configuration
