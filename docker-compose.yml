@@ -32,6 +32,8 @@ services:
       context: .
       dockerfile: Dockerfile.flask
     restart: always
+    expose:
+      - "5000"
 
   nginx:
     image: nginx:1.24.0
