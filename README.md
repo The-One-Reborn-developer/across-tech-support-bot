@@ -26,11 +26,10 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 
 ## INSTALLATION
 
+Run setup.sh script:
+
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-sudo apt install nginx apache2-utils docker docker-compose
+sudo ./setup.sh
 ```
 
 ## NGINX server configuration
@@ -53,36 +52,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
-```
-
-2) Configure `/etc/nginx/.htpasswd`:
-
-```nginx
-sudo htpasswd -c /etc/nginx/.htpasswd across
-```
-
-Enter password when prompted
-
-3) Test the configuration: ```sudo nginx -t```
-
-4) Restart Nginx: ```sudo systemctl restart nginx```
-
-## REDIS configuration
-
-```bash
-sudo nano /etc/sysctl.conf
-```
-
-Add to the end of file:
-
-```bash
-vm.overcommit_memory = 1
-```
-
-Save and apply changes:
-
-```bash
-sudo sysctl -p
 ```
 
 ## RUNNING
