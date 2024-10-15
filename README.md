@@ -34,7 +34,7 @@ sudo ./setup.sh
 
 ## NGINX server configuration
 
-1) Add the following to `/etc/nginx/sites-available/default`:
+Add the following to `/etc/nginx/sites-available/default`:
 
 ```nginx
 server {
