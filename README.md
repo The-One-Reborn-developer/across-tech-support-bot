@@ -57,8 +57,7 @@ server {
 ## RUNNING
 
 ```bash
-sudo docker-compose build
-sudo docker-compose up
+sudo docker-compose build && sudo docker-compose up
 ```
 
 ## NOTES ON WEBHOOK PICTURE RECEIVING

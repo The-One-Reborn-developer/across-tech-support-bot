@@ -13,12 +13,6 @@ pip install -r requirements.txt
 sudo systemctl start docker
 sudo systemctl enable docker
 
-# Build Docker images
-sudo docker-compose build
-
-# Start Docker Compose
-sudo docker-compose up -d
-
 # Configure /etc/nginx/.htpasswd
 echo "Enter password for ftp.across.ru webhook access:"
 sudo htpasswd -c /etc/nginx/.htpasswd across
