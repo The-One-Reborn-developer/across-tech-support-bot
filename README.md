@@ -12,9 +12,8 @@ A [TG bot](https://t.me/across_tech_bot) for creating tickets, viewing ticket st
 
 ## DEPENDENCIES
 
-- [aiogram](https://github.com/aio-libs/aiohttp)
+- [aiogram](https://github.com/aiogram/aiogram)
 - [python-dotenv](https://github.com/theskumar/python-dotenv)
-- [aiosqlite](https://github.com/aiosqlite/aiosqlite)
 - [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy)
 - [flask](https://github.com/pallets/flask)
 - [nginx](https://www.nginx.com/)
