@@ -4,14 +4,14 @@ import logging
 from app.database.models.ticket import Ticket
 from app.database.models.user import User
 
-from app.database.queue.create_database_tables import create_database_tables
-from app.database.queue.delete_ticket import delete_ticket
-from app.database.queue.get_all_user_tickets import get_all_user_tickets
-from app.database.queue.get_ticket import get_ticket
-from app.database.queue.get_user import get_user
-from app.database.queue.set_ticket import set_ticket
-from app.database.queue.set_user import set_user
-from app.database.queue.update_user import update_user
+from app.database.queries.create_database_tables import create_database_tables
+from app.database.queries.delete_ticket import delete_ticket
+from app.database.queries.get_all_user_tickets import get_all_user_tickets
+from app.database.queries.get_ticket import get_ticket
+from app.database.queries.get_user import get_user
+from app.database.queries.set_ticket import set_ticket
+from app.database.queries.set_user import set_user
+from app.database.queries.update_user import update_user
 
 
 app = celery.Celery('tasks', broker='redis://redis:6379/0')
